@@ -1,0 +1,255 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="appAlarmModel"
+            type="com.graytsar.idleclickercompanion.AppAlarmModel" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="2dp"
+        android:layout_marginTop="1dp"
+        android:layout_marginRight="2dp"
+        android:layout_marginBottom="1dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/alarmConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <View
+                android:id="@+id/cardCompletionColor"
+                android:layout_width="5dp"
+                android:layout_height="0dp"
+                android:background="#00FF00"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textDayRepeat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                android:text="@{appAlarmModel.textDays}"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/textTimeLeft"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@{appAlarmModel.timeLeft}"
+                android:textColor="@color/colorAccent"
+                android:textSize="30sp"
+                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
+                app:layout_constraintTop_toBottomOf="@+id/textDayRepeat" />
+
+            <TextView
+                android:id="@+id/textNotifyRepeat"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:text="@{appAlarmModel.repeatLeftObs}"
+                android:textColor="@color/colorAccent"
+                android:textSize="18sp"
+                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
+                app:layout_constraintTop_toBottomOf="@+id/textAction" />
+
+            <TextView
+                android:id="@+id/textAction"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@{appAlarmModel.action}"
+                android:textColor="@color/colorAccent"
+                android:textSize="30sp"
+                app:layout_constraintEnd_toStartOf="@+id/switchStartAlarm"
+                app:layout_constraintStart_toEndOf="@+id/textTimeLeft"
+                app:layout_constraintTop_toBottomOf="@+id/textDayRepeat" />
+
+            <Switch
+                android:id="@+id/switchStartAlarm"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="55dp"
+                android:layout_marginEnd="8dp"
+                android:checked="@{appAlarmModel.startAlarm}"
+                android:onClick="@{appAlarmModel::onClickStartAlarm}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <ImageView
+                android:id="@+id/btnDropDown"
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="16dp"
+                android:clickable="true"
+                android:onClick="@{appAlarmModel::onExpandClick}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textAction"
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_accent_24dp" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/layoutExpandDays"
+                android:layout_width="0dp"
+                android:layout_height="44dp"
+                android:layout_marginTop="8dp"
+                android:visibility="gone"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
+                app:layout_constraintTop_toBottomOf="@+id/btnDropDown">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="8dp"
+                    android:orientation="horizontal"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent">
+
+
+                    <CheckBox
+                        android:id="@+id/buttonMonday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/monday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="Mo"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonTuesday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/tuesday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="Tu"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space2"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonWednesday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/wednesday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="We"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space3"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonThursday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/thursday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="Th"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space4"
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonFriday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/friday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="Fr"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space5"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonSaturday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/saturday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="Sa"
+                        android:textColor="@color/colorAccent" />
+
+                    <Space
+                        android:id="@+id/space6"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1" />
+
+                    <CheckBox
+                        android:id="@+id/buttonSunday"
+                        android:layout_width="wrap_content"
+                        android:layout_height="32dp"
+                        android:layout_marginTop="2dp"
+                        android:layout_marginBottom="2dp"
+                        android:buttonTint="@color/check_box_green"
+                        android:checked="@{appAlarmModel.map.get(@string/sunday)}"
+                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:text="So"
+                        android:textColor="@color/colorAccent" />
+
+                </LinearLayout>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</layout>

@@ -11,9 +11,9 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.palette.graphics.Palette
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +23,7 @@ import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -46,7 +47,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    private val listAppCard = ArrayList<AppCardModel>()
+    private val listAppCard = ArrayList<AppModel>()
     private lateinit var appCardAdapter:AppCardAdapter
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -73,7 +74,16 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         val helper = ItemTouchHelper(DragAndDropHelper(appCardAdapter, listAppCard))
         helper.attachToRecyclerView(view.recyclerHome)
 
-        //test
+        lifecycleScope.launch {
+            dbGetAll()
+        }
+        //test()
+
+        // Inflate the layout for this fragment
+        return view
+    }
+
+    fun test(){
         val pm = activity!!.packageManager
         val listPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
         for (applicationInfo in listPackages) {
@@ -97,12 +107,9 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
                 } else{
                     0xFFFFFF
                 }
-                listAppCard.add( AppCardModel(activity!!, label, "SavarKeiner", draw, applicationInfo.packageName))
+                listAppCard.add( AppModel(0, label, "SavarKeiner", draw.toBitmap(), applicationInfo.packageName))
             }
         }
-
-        // Inflate the layout for this fragment
-        return view
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -158,20 +165,50 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
                 0xFFFFFF
             }
 
+            val gameCardModel = AppModel(0, appName, userName, drawable.toBitmap(), packageName)
 
-            val gameCardModel = AppCardModel(activity!!, appName, userName, drawable, packageName)
-
-
-            if(listAppCard.contains(gameCardModel)){
-                return
+            lifecycleScope.launch{
+                dbNewAppCard(gameCardModel)
             }
+        }
+    }
 
-            listAppCard.add(0, gameCardModel)
+    suspend fun dbGetAll(){
+        val array = SingletonStatic.db.appCardDao().getAll()
+        val pm = activity!!.packageManager
+
+        Log.d("DBG: ", "Ar Size -> ${array.size}")
+
+        if(array.isNotEmpty()){
+            listAppCard.clear()
+            array.forEach {
+
+                it.icon = pm.getApplicationIcon(it.appPath).toBitmap()
+                listAppCard.add(it)
+            }
             appCardAdapter.notifyDataSetChanged()
         }
     }
 
-    private class DragAndDropHelper(val adapter: AppCardAdapter, val list: java.util.ArrayList<AppCardModel>): ItemTouchHelper.SimpleCallback(
+    suspend fun dbNewAppCard(gameModel:AppModel){
+        val arCard = SingletonStatic.db.appCardDao().findAppCard(gameModel.appPath, gameModel.userName)
+
+        if(arCard.isEmpty() || (gameModel != arCard[0])){
+            SingletonStatic.db.appCardDao().insertAppCard(gameModel)
+        } else {
+            gameModel.idApp = arCard[0].idApp
+            gameModel.icon = arCard[0].icon
+            Snackbar.make(recyclerHome, "card exists", Snackbar.LENGTH_LONG).show()
+        }
+
+        //if card is not the same then add
+        if(!listAppCard.contains(gameModel)){
+            listAppCard.add(0, gameModel)
+        }
+        appCardAdapter.notifyDataSetChanged()
+    }
+
+    private class DragAndDropHelper(val adapter: AppCardAdapter, val list: java.util.ArrayList<AppModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {

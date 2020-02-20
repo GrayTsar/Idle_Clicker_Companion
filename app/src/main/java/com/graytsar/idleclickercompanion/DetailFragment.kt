@@ -42,9 +42,9 @@ class AppDetailFragment : Fragment() {
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    val list = ArrayList<AppAlarmModel>()
+    val list = ArrayList<AlarmModel>()
     lateinit var adapter:AppAlarmAdapter
-    lateinit var serializable:SerializableAppDetail
+    lateinit var model:AppModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +52,7 @@ class AppDetailFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-        serializable = Gson().fromJson(arguments?.getString("obj"), SerializableAppDetail::class.java)
+        model = Gson().fromJson(arguments?.getString("obj"), AppModel::class.java)
         //BitmapDrawable(context!!.resources, model.icon)
     }
 
@@ -70,13 +70,13 @@ class AppDetailFragment : Fragment() {
         val helper = ItemTouchHelper(DragAndDropHelper(adapter, list))
         helper.attachToRecyclerView(view.recyclerAppDetail)
 
-        activity!!.toolbarBackdrop.setImageBitmap(serializable.icon)
+        activity!!.toolbarBackdrop.setImageBitmap(model.icon)
         activity!!.collapsingToolbarLayout.apply {
             setBackgroundColor(ContextCompat.getColor(context, R.color.colorGrayTitle))
             //setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
             setCollapsedTitleTextColor(Color.WHITE)
             setExpandedTitleColor(Color.WHITE)
-            title = serializable.appName
+            title = model.userName
         }
         activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorGrayDark)
 
@@ -90,23 +90,44 @@ class AppDetailFragment : Fragment() {
         activity!!.fab.setOnClickListener {
             val builder = AlertDialog.Builder(context)
             val infalter = requireActivity().layoutInflater
-            val view = inflater.inflate(R.layout.picker_alarm, null)
-            view.timePicker.setIs24HourView(true)
-            view.timePicker.hour = 1
-            view.timePicker.minute = 0
+            val picker = inflater.inflate(R.layout.picker_alarm, null)
+            picker.timePicker.setIs24HourView(true)
+            picker.timePicker.hour = 1
+            picker.timePicker.minute = 0
 
-            builder.setView(view)
+            builder.setView(picker)
             builder.create()
             val dialog = builder.show()
 
-            view.dialogPositiveButton.setOnClickListener{
+            picker.dialogPositiveButton.setOnClickListener{
 
-                if(view.textPickerDescription.text.isEmpty()){
-                    view.textPickerDescription.error = "Field cannot be blank"
-                } else if(view.textPickerRepeat.text.isEmpty()){
-                    view.textPickerRepeat.error = "Field cannot be blank"
+                if(picker.textPickerDescription.text.isEmpty()){
+                    picker.textPickerDescription.error = "Field cannot be blank"
+                } else if(picker.textPickerRepeat.text.isEmpty()){
+                    picker.textPickerRepeat.error = "Field cannot be blank"
                 } else{
-                    val item = AppAlarmModel(activity!!, serializable.appName, serializable.appPath, view.timePicker.hour, view.timePicker.minute, view.textPickerDescription.text.toString(), Integer.parseInt(view.textPickerRepeat.text.toString()))
+                    val hour = picker.timePicker.hour
+                    val min = picker.timePicker.minute
+                    val repeat = Integer.parseInt(picker.textPickerRepeat.text.toString())
+                    val action = picker.textPickerDescription.text.toString()
+
+                    val item = AlarmModel(0, model.idApp, model.appName, model.appPath,
+                        hour,
+                        min,
+                        repeat,
+                        action,
+                        hour,
+                        min,
+                        repeat,
+                        sA = false,
+                        d1 = false,
+                        d2 = false,
+                        d3 = false,
+                        d4 = false,
+                        d5 = false,
+                        d6 = false,
+                        d7 = false
+                        )
                     list.add(item)
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
@@ -143,7 +164,7 @@ class AppDetailFragment : Fragment() {
         activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
     }
 
-    private class DragAndDropHelper(val adapter: AppAlarmAdapter, val list:ArrayList<AppAlarmModel>): ItemTouchHelper.SimpleCallback(
+    private class DragAndDropHelper(val adapter: AppAlarmAdapter, val list:ArrayList<AlarmModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {

@@ -1,17 +1,17 @@
 package com.graytsar.idleclickercompanion
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
 import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
 
-object SingletonNotify {
+//toDo: remove Singleton Class
+object SingletonStatic {
     var activity:MainActivity? = null
     var notificationManager:NotificationManager? = null
     var channelID:String? = null
     val notificationID:Int = 101
+
+    lateinit var db:PersistentRoomDatabase
 
 
     fun pushNotify(appPath:String, title:String, text:String){

@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="appAlarmModel"
-            type="com.graytsar.idleclickercompanion.AppAlarmModel" />
+            name="alarmModel"
+            type="com.graytsar.idleclickercompanion.AlarmModel" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -38,7 +38,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
-                android:text="@{appAlarmModel.textDays}"
+                android:text="@{alarmModel.obsTextDays}"
                 android:textColor="@color/colorAccent"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@{appAlarmModel.timeLeft}"
+                android:text="@{alarmModel.obsTimeLeft}"
                 android:textColor="@color/colorAccent"
                 android:textSize="30sp"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@{appAlarmModel.repeatLeftObs}"
+                android:text="@{alarmModel.obsRepeatLeft}"
                 android:textColor="@color/colorAccent"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
@@ -76,7 +76,7 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
-                android:text="@{appAlarmModel.action}"
+                android:text="@{alarmModel.selectedAction}"
                 android:textColor="@color/colorAccent"
                 android:textSize="30sp"
                 app:layout_constraintEnd_toStartOf="@+id/switchStartAlarm"
@@ -89,8 +89,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="55dp"
                 android:layout_marginEnd="8dp"
-                android:checked="@{appAlarmModel.startAlarm}"
-                android:onClick="@{appAlarmModel::onClickStartAlarm}"
+                android:checked="@{alarmModel.obsStartAlarm}"
+                android:onClick="@{alarmModel::onClickStartAlarm}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -101,7 +101,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:clickable="true"
-                android:onClick="@{appAlarmModel::onExpandClick}"
+                android:onClick="@{alarmModel::onExpandClick}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textAction"
                 app:srcCompat="@drawable/ic_keyboard_arrow_down_accent_24dp" />
@@ -135,8 +135,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/monday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d1}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="Mo"
                         android:textColor="@color/colorAccent" />
 
@@ -153,8 +153,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/tuesday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d2}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="Tu"
                         android:textColor="@color/colorAccent" />
 
@@ -171,8 +171,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/wednesday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d3}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="We"
                         android:textColor="@color/colorAccent" />
 
@@ -189,8 +189,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/thursday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d4}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="Th"
                         android:textColor="@color/colorAccent" />
 
@@ -207,8 +207,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/friday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d5}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="Fr"
                         android:textColor="@color/colorAccent" />
 
@@ -225,8 +225,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/saturday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d6}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="Sa"
                         android:textColor="@color/colorAccent" />
 
@@ -243,8 +243,8 @@
                         android:layout_marginTop="2dp"
                         android:layout_marginBottom="2dp"
                         android:buttonTint="@color/check_box_green"
-                        android:checked="@{appAlarmModel.map.get(@string/sunday)}"
-                        android:onClick="@{appAlarmModel::onDayClick}"
+                        android:checked="@{alarmModel.d7}"
+                        android:onClick="@{alarmModel::onDayClick}"
                         android:text="So"
                         android:textColor="@color/colorAccent" />
 

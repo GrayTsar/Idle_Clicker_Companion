@@ -3,15 +3,10 @@ package com.graytsar.idleclickercompanion
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.content.Intent
-import android.graphics.Color
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.appcompat.widget.Toolbar
-import androidx.core.app.NotificationCompat
-import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -20,6 +15,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import androidx.room.Room
 import com.google.android.material.navigation.NavigationView
 
 class MainActivity : AppCompatActivity() {
@@ -46,10 +42,15 @@ class MainActivity : AppCompatActivity() {
         setupActionBarWithNavController(navController, appBarConfiguration)
         navView.setupWithNavController(navController)
 
-        SingletonNotify.activity = this
-        SingletonNotify.channelID = "com.graytsar.idleclickercompanion.Alarm"
-        SingletonNotify.notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        createNotificationChannel(SingletonNotify.channelID!!, "Alarm", "Alarm Notification")
+        SingletonStatic.activity = this
+        SingletonStatic.channelID = "com.graytsar.idleclickercompanion.Alarm"
+        SingletonStatic.notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        createNotificationChannel(SingletonStatic.channelID!!, "Alarm", "Alarm Notification")
+
+        SingletonStatic.db = Room.databaseBuilder(
+            applicationContext,
+            PersistentRoomDatabase::class.java, "AppCard_Database"
+        ).build()
     }
 
     override fun onSupportNavigateUp(): Boolean {
@@ -66,6 +67,6 @@ class MainActivity : AppCompatActivity() {
         val channel = NotificationChannel(id, name, importance)
 
         channel.description = description
-        SingletonNotify.notificationManager!!.createNotificationChannel(channel)
+        SingletonStatic.notificationManager!!.createNotificationChannel(channel)
     }
 }

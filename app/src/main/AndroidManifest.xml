@@ -28,7 +28,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name=".AppAlarmModel"
+            android:name=".AlarmModel"
             android:label="PushNotificationService"
             android:permission="android.permission.BIND_JOB_SERVICE" >
         </service>

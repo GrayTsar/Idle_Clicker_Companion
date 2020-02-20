@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.graytsar.idleclickercompanion.databinding.ItemGameCardBinding
 import kotlinx.android.synthetic.main.item_game_card.view.*
 
-class AppCardAdapter (val context: Context, val list:ArrayList<AppCardModel>): RecyclerView.Adapter<ViewHolderAppCard>() {
+class AppCardAdapter (val context: Context, val list:ArrayList<AppModel>): RecyclerView.Adapter<ViewHolderAppCard>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAppCard {
         val binding = DataBindingUtil.inflate<ItemGameCardBinding>(LayoutInflater.from(context), R.layout.item_game_card, parent, false)
         return ViewHolderAppCard(binding.root, binding)
@@ -22,7 +22,7 @@ class AppCardAdapter (val context: Context, val list:ArrayList<AppCardModel>): R
 
     override fun onBindViewHolder(holder: ViewHolderAppCard, position: Int) {
         holder.binding.appCardModel = list[position]
-        holder.icon.setImageDrawable(list[position].icon)
+        holder.icon.setImageBitmap(list[position].icon)
     }
 }
 

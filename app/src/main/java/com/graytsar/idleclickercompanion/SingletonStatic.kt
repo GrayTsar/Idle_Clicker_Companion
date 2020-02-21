@@ -3,6 +3,8 @@ package com.graytsar.idleclickercompanion
 import android.app.NotificationManager
 import android.app.PendingIntent
 import androidx.core.app.NotificationCompat
+import androidx.room.TypeConverter
+import com.google.gson.Gson
 
 //toDo: remove Singleton Class
 object SingletonStatic {
@@ -29,4 +31,7 @@ object SingletonStatic {
 
         notificationManager!!.notify(notificationID, notification)
     }
+
+
+
 }

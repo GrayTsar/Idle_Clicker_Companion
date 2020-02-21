@@ -50,7 +50,7 @@ class MainActivity : AppCompatActivity() {
         SingletonStatic.db = Room.databaseBuilder(
             applicationContext,
             PersistentRoomDatabase::class.java, "AppCard_Database"
-        ).build()
+        ).allowMainThreadQueries().build()
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -22,9 +22,11 @@ class AppAlarmAdapter(val activity: AppDetailFragment, val list:ArrayList<AlarmM
         holder.binding.lifecycleOwner = activity
         holder.binding.alarmModel = list[position]
         holder.timeLeft = list[position].obsRepeatLeft.toString() + ":" + list[position].minuteLeft.toString()
+
     }
 }
 
 class ViewHolderAppAlarm(view: View, val binding: ItemGameAlertBinding):RecyclerView.ViewHolder(view){
     var timeLeft:String = view.textTimeLeft.text as String
+    var viewComplete:View = view.cardCompletionColor
 }

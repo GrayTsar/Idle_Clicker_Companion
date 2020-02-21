@@ -6,17 +6,17 @@ import androidx.room.*
 interface AppDAO {
 
     @Insert
-    suspend fun insertAppCard(app:AppModel)
+    fun insertAppCard(app:AppModel):Long
 
     @Update
-    suspend fun updateAppCard(app:AppModel)
+    fun updateAppCard(app:AppModel)
 
     @Delete
-    suspend fun deleteAppCard(app: AppModel)
+    fun deleteAppCard(app: AppModel)
 
     @Query("SELECT * FROM AppCard WHERE appPath = :path AND userName = :name")
-    suspend fun findAppCard(path:String, name:String): Array<AppModel>
+    fun findAppCard(path:String, name:String): Array<AppModel>
 
     @Query("SELECT * FROM AppCard")
-    suspend fun getAll():Array<AppModel>
+    fun getAll():Array<AppModel>
 }

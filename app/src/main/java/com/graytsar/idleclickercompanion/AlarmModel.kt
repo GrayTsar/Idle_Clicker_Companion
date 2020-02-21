@@ -4,6 +4,7 @@ import android.os.CountDownTimer
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
@@ -14,61 +15,42 @@ import java.util.*
 
 
 @Entity(tableName = "Alarm",
-    foreignKeys = arrayOf(ForeignKey(entity = AppModel::class, parentColumns = arrayOf("idApp"), childColumns = arrayOf("idListAlarm"), onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)),
+    foreignKeys = [ForeignKey(entity = AppModel::class, parentColumns = arrayOf("idApp"), childColumns = arrayOf("idListAlarm"), onDelete = ForeignKey.CASCADE, onUpdate = ForeignKey.CASCADE)],
     indices = [Index(value = ["idListAlarm"])]
 )
 class AlarmModel(
-    @PrimaryKey(autoGenerate = true) var idAlarm:Int,
-    @ColumnInfo(name = "idListAlarm") var idListAlarm:Int,
+    @PrimaryKey(autoGenerate = true) var idAlarm:Long,
+    @ColumnInfo(name = "idListAlarm") var idListAlarm:Long,
     @ColumnInfo(name = "appName")var appName:String,
     @ColumnInfo(name = "appPath")var appPath:String,
     @ColumnInfo(name = "hour") var selectedHour:Int,
     @ColumnInfo(name = "minute") var selectedMinute:Int,
     @ColumnInfo(name = "repeat") var selectedRepeat:Int,
     @ColumnInfo(name = "action") var selectedAction:String,
-    @ColumnInfo(name = "hourLeft") var hL:Int,
-    @ColumnInfo(name = "minuteLeft") var mL:Int,
-    @ColumnInfo(name = "repeatLeft") var rL:Int,
-    @ColumnInfo(name = "startAlarm") var sA:Boolean,
-    @ColumnInfo(name = "d1") var d1:Boolean,
-    @ColumnInfo(name = "d2") var d2:Boolean,
-    @ColumnInfo(name = "d3") var d3:Boolean,
-    @ColumnInfo(name = "d4") var d4:Boolean,
-    @ColumnInfo(name = "d5") var d5:Boolean,
-    @ColumnInfo(name = "d6") var d6:Boolean,
-    @ColumnInfo(name = "d7")var d7:Boolean
-)
-{
-    @Ignore var hourLeft = selectedHour
-    @Ignore var minuteLeft = selectedMinute
-    @Ignore var repeatLeft:Int = selectedRepeat
-    @Ignore var startAlarm:Boolean = false
+    @ColumnInfo(name = "hourLeft") var hourLeft:Int,
+    @ColumnInfo(name = "minuteLeft") var minuteLeft:Int,
+    @ColumnInfo(name = "repeatLeft") var repeatLeft:Int,
+    @ColumnInfo(name = "startAlarm") var startAlarm:Boolean,
+    @ColumnInfo(name = "selectedDaysAr") var selectedDaysAr:Array<Boolean>) {
 
-
-    @Ignore var obsRepeatLeft:MutableLiveData<String> = MutableLiveData()
+    @Ignore var obsRepeatLeft:MutableLiveData<Int> = MutableLiveData()
     @Ignore var obsTextDays:MutableLiveData<String> = MutableLiveData()
     @Ignore var obsTimeLeft:MutableLiveData<String> = MutableLiveData()
     @Ignore var obsStartAlarm:MutableLiveData<Boolean> = MutableLiveData()
 
     @Ignore private var expandVisibility:Boolean = false
 
-    //var d1 = false
-    //var d2 = false
-    //var d3 = false
-    //var d4 = false
-    //var d5 = false
-    //var d6 = false
-    //var d7 = false
+    @Ignore private var countDownTimer:CountDownTimer? = null
 
-    constructor():this(0,0,"","",0,0,0,"",0,0,0,false,false,false,false,false,false,false,false)
+    constructor():this(0,0,"","",1,0,0,"",0,0,0,false, arrayOf(true,true,true,true,true,true,true))
 
     init{
-        obsRepeatLeft.value = "$repeatLeft Times"
+        obsRepeatLeft.value = repeatLeft
         obsTextDays.value = "Daily"
         obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}"
-        obsStartAlarm.value = false
+        obsStartAlarm.value = startAlarm
 
-        val mMS = selectedMinute * 600000
+        /*val mMS = selectedMinute * 600000
         val hMS = selectedHour * 3600000
 
         val endT = System.currentTimeMillis() + mMS + hMS
@@ -79,120 +61,85 @@ class AlarmModel(
         val a = SimpleDateFormat("dd/MM/yyyy HH:mm:ss.SSS").apply {
             timeZone = calendar.timeZone
         }
-        Log.d("DBG: ", " "  + a.format(calendar.time))
+        Log.d("DBG: ", " "  + a.format(calendar.time))*/
+
+        setupDayString()
     }
 
     fun onClickStartAlarm(view:View){
-        val countDownTimer = object:CountDownTimer(10000, 1000) {
-            override fun onFinish() {
-                obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}"
-                hourLeft = selectedHour
-                minuteLeft = selectedMinute
+        startAlarm = !startAlarm
+        obsStartAlarm.value = startAlarm
 
-                if(repeatLeft == 0){
-                    repeatLeft = selectedRepeat
-                } else {
-                    repeatLeft--
-                }
+        if(startAlarm){
+            countDownTimer?.cancel()
+            //selectedMinute * 600000L + selectedHour * 3600000L, 60000
+            countDownTimer = object:CountDownTimer(10000, 1000) {
+                override fun onFinish() {
+                    obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}"
+                    hourLeft = selectedHour
+                    minuteLeft = selectedMinute
 
-                obsRepeatLeft.value = "$repeatLeft Times"
-                pushNotify()
-            }
-
-            override fun onTick(millisUntilFinished: Long) {
-                if (minuteLeft == 0) {
-                    if (hourLeft == 0) {
-                        this.cancel()
+                    if(repeatLeft == 0){
+                        repeatLeft = selectedRepeat
+                    } else {
+                        repeatLeft--
                     }
-                    minuteLeft = 59
-                    hourLeft--
+
+                    obsRepeatLeft.value = repeatLeft
+                    pushNotify()
                 }
-                minuteLeft--
-            }
-        }.start()
-    }
 
+                override fun onTick(millisUntilFinished: Long) {
+                    if (minuteLeft == 0) {
+                        if (hourLeft == 0) {
+                            this.cancel()
+                        }
+                        minuteLeft = 59
+                        hourLeft--
+                    }
+                    minuteLeft--
 
-    private fun pushNotify(){
-        SingletonStatic.pushNotify(appPath, appName, selectedAction)
+                    obsTimeLeft.value = "${String.format("%02d",hourLeft)}:${String.format("%02d",minuteLeft)}"
+                }
+            }.start()
+
+        } else {
+            countDownTimer?.cancel()
+        }
+
+        obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}"
+        hourLeft = selectedHour
+        minuteLeft = selectedMinute
     }
 
     fun onDayClick(view:View){
         when(view){
             view.buttonMonday ->{
-                d1 = !d1
+                selectedDaysAr[0] = !selectedDaysAr[0]
             }
             view.buttonTuesday ->{
-                d2 = !d2
+                selectedDaysAr[1] = !selectedDaysAr[1]
             }
             view.buttonWednesday ->{
-                d3 = !d3
+                selectedDaysAr[2] = !selectedDaysAr[2]
             }
             view.buttonThursday ->{
-                d4 = !d4
+                selectedDaysAr[3] = !selectedDaysAr[3]
             }
             view.buttonFriday ->{
-                d5 = !d5
+                selectedDaysAr[4] = !selectedDaysAr[4]
             }
             view.buttonSaturday ->{
-                d6 = !d6
+                selectedDaysAr[5] = !selectedDaysAr[5]
             }
             view.buttonSunday ->{
-                d7 = !d7
+                selectedDaysAr[6] = !selectedDaysAr[6]
             }
         }
 
-        var stringDays = ""
-        var iDays = 0
-        var alwaysTrue = true
+        setupDayString()
 
-        for(i in 0..6){
-            when (i) {
-                0 -> {
-                    stringDays += "Mo."
-                }
-                1 -> {
-                    stringDays += "Tu."
-                }
-                2 -> {
-                    stringDays += "We."
-                }
-                3 -> {
-                    stringDays += "Th."
-                }
-                4 -> {
-                    stringDays += "Fr."
-                }
-                5 -> {
-                    stringDays += "Sa."
-                }
-                6 -> {
-                    stringDays += "So."
-                }
-                else -> {
-                    alwaysTrue = false
-                    iDays++
-                }
-            }
-        }
-
-        /*
-        map.forEach{
-            if(it.value){
-                stringDays += it.key
-            }
-            else{
-                alwaysTrue = false
-                iDays++
-            }
-        }*/
-
-        obsTextDays.value = if(alwaysTrue)
-            "Daily"
-        else if(!alwaysTrue && iDays == 7)
-            "Never"
-        else
-            stringDays
+        SingletonStatic.db.appAlarmDao().updateAppAlarm(this)
     }
 
     fun onExpandClick(view: View){
@@ -201,11 +148,59 @@ class AlarmModel(
         if(expandVisibility){
             (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_up_accent_24dp))
             //Log.d("DBG: ", view.parent.toString())
-            (view.parent as ConstraintLayout).layoutExpandDays.visibility = View.VISIBLE
+            (view.parent as ConstraintLayout).listExpandDays.visibility = View.VISIBLE
         }
         else{
             (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_down_accent_24dp))
-            (view.parent as ConstraintLayout).layoutExpandDays.visibility = View.GONE
+            (view.parent as ConstraintLayout).listExpandDays.visibility = View.GONE
         }
+    }
+
+    private fun setupDayString(){
+        var stringDays = ""
+        var iFalseDays = 0
+        var alwaysTrue = true
+
+        for(i in 0..6){
+            if(selectedDaysAr[i]){
+                when (i) {
+                    0 -> {
+                        stringDays += "Mo."
+                    }
+                    1 -> {
+                        stringDays += "Tu."
+                    }
+                    2 -> {
+                        stringDays += "We."
+                    }
+                    3 -> {
+                        stringDays += "Th."
+                    }
+                    4 -> {
+                        stringDays += "Fr."
+                    }
+                    5 -> {
+                        stringDays += "Sa."
+                    }
+                    6 -> {
+                        stringDays += "So."
+                    }
+                }
+            } else {
+                alwaysTrue = false
+                iFalseDays++
+            }
+        }
+
+        obsTextDays.value = if(alwaysTrue)
+            "Daily"
+        else if(!alwaysTrue && iFalseDays == 7)
+            "Never"
+        else
+            stringDays
+    }
+
+    private fun pushNotify(){
+        SingletonStatic.pushNotify(appPath, appName, selectedAction)
     }
 }

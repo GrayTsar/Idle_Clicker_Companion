@@ -56,14 +56,15 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
-        val navigationView:NavigationView = activity!!.findViewById(R.id.nav_view)
-        navigationView.setNavigationItemSelectedListener(this)
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        val navigationView:NavigationView = activity!!.findViewById(R.id.nav_view)
+        navigationView.setNavigationItemSelectedListener(this)
+
         val view =inflater.inflate(R.layout.fragment_home, container, false)
         val linearLayoutManager = LinearLayoutManager(context)
         appCardAdapter = AppCardAdapter(context!!, listAppCard)
@@ -74,9 +75,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         val helper = ItemTouchHelper(DragAndDropHelper(appCardAdapter, listAppCard))
         helper.attachToRecyclerView(view.recyclerHome)
 
-        lifecycleScope.launch {
-            dbGetAll()
-        }
+        dbGetAll()
         //test()
 
         // Inflate the layout for this fragment
@@ -91,22 +90,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             if(applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0){
                 val label = pm.getApplicationLabel(pm.getApplicationInfo(applicationInfo.packageName, 0)).toString()
                 val draw = pm.getApplicationIcon(pm.getApplicationInfo(applicationInfo.packageName, 0))
-                val bmap = pm.getApplicationIcon(pm.getApplicationInfo(applicationInfo.packageName, 0)).toBitmap()
-                val p = Palette.from(bmap).generate()
-                val c1 = p.getDominantColor(0xFFFFFF)
-                val c2 = p.getMutedColor(0xFFFFFF)
 
-                val colorTitle = if(186.0 < (0.2126 * Color.red(c1) + 0.7152 * Color.green(c1) + 0.0722 * Color.blue(c1))){
-                    0x000000
-                } else{
-                    0xFFFFFF
-                }
-
-                val colorText = if(186.0 < (0.2126 * Color.red(c2) + 0.7152 * Color.green(c2) + 0.0722 * Color.blue(c2))){
-                    0x000000
-                } else{
-                    0xFFFFFF
-                }
                 listAppCard.add( AppModel(0, label, "SavarKeiner", draw.toBitmap(), applicationInfo.packageName))
             }
         }
@@ -145,35 +129,12 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             val userName = data.extras!!["userName"] as String
             val appName:String = data.extras!!["appName"] as String
 
-            val pm = activity!!.packageManager
-            val drawable = pm.getApplicationIcon(packageName)
-
-            val bmap = drawable.toBitmap()
-            val p = Palette.from(bmap).generate()
-            val c1 = p.getDominantColor(0xFFFFFF)
-            val c2 = p.getMutedColor(0xFFFFFF)
-
-            val colorTitle = if(186.0 < (0.2126 * Color.red(c1) + 0.7152 * Color.green(c1) + 0.0722 * Color.blue(c1))){
-                0x000000
-            } else{
-                0xFFFFFF
-            }
-
-            val colorText = if(186.0 < (0.2126 * Color.red(c2) + 0.7152 * Color.green(c2) + 0.0722 * Color.blue(c2))){
-                0x000000
-            } else{
-                0xFFFFFF
-            }
-
-            val gameCardModel = AppModel(0, appName, userName, drawable.toBitmap(), packageName)
-
-            lifecycleScope.launch{
-                dbNewAppCard(gameCardModel)
-            }
+            val gameCardModel = AppModel(0, appName, userName, activity!!.packageManager.getApplicationIcon(packageName).toBitmap(), packageName)
+            dbNewAppCard(gameCardModel)
         }
     }
 
-    suspend fun dbGetAll(){
+    private fun dbGetAll(){
         val array = SingletonStatic.db.appCardDao().getAll()
         val pm = activity!!.packageManager
 
@@ -190,11 +151,12 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         }
     }
 
-    suspend fun dbNewAppCard(gameModel:AppModel){
+    private fun dbNewAppCard(gameModel:AppModel){
         val arCard = SingletonStatic.db.appCardDao().findAppCard(gameModel.appPath, gameModel.userName)
 
         if(arCard.isEmpty() || (gameModel != arCard[0])){
-            SingletonStatic.db.appCardDao().insertAppCard(gameModel)
+            val id = SingletonStatic.db.appCardDao().insertAppCard(gameModel)
+            gameModel.idApp = id
         } else {
             gameModel.idApp = arCard[0].idApp
             gameModel.icon = arCard[0].icon

@@ -14,7 +14,7 @@ import com.google.gson.Gson
 
 @Entity(tableName = "AppCard")
 class AppModel(
-    @PrimaryKey(autoGenerate = true) var idApp:Int,
+    @PrimaryKey(autoGenerate = true) var idApp:Long,
     @ColumnInfo(name = "appName") var appName: String,
     @ColumnInfo(name = "userName") var userName: String,
     @Ignore var icon: Bitmap?,
@@ -27,10 +27,13 @@ class AppModel(
     fun onCardClick(view: View){
         val f = (view.context as MainActivity).supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController:NavController = f.navController
+
         val bundle = Bundle().apply { putString("obj", Gson().toJson(this@AppModel)) }
 
         navController.navigate(R.id.appDetailFragment, bundle)
     }
+
+
 
     override fun equals(other: Any?): Boolean {
         var bool = false

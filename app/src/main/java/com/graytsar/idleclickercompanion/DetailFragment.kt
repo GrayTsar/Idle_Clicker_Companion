@@ -3,6 +3,7 @@ package com.graytsar.idleclickercompanion
 import android.app.AlertDialog
 import android.graphics.Color
 import android.net.Uri
+import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,6 +11,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -19,6 +21,9 @@ import com.google.gson.Gson
 import kotlinx.android.synthetic.main.fragment_app_detail.view.*
 import kotlinx.android.synthetic.main.picker_alarm.view.*
 import kotlinx.android.synthetic.main.toolbar.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -42,7 +47,7 @@ class AppDetailFragment : Fragment() {
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    val list = ArrayList<AlarmModel>()
+    private val list = ArrayList<AlarmModel>()
     lateinit var adapter:AppAlarmAdapter
     lateinit var model:AppModel
 
@@ -53,7 +58,11 @@ class AppDetailFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
         model = Gson().fromJson(arguments?.getString("obj"), AppModel::class.java)
-        //BitmapDrawable(context!!.resources, model.icon)
+
+        val array = SingletonStatic.db.appAlarmDao().getAllAppAlarm(model.idApp)
+        array.forEach {
+            list.add(AlarmModel(it.idAlarm, it.idListAlarm, it.appName, it.appPath, it.selectedHour, it.selectedMinute, it.selectedRepeat, it.selectedAction, it.hourLeft, it.minuteLeft, it.repeatLeft, it.startAlarm, it.selectedDaysAr))
+        }
     }
 
     override fun onCreateView(
@@ -67,8 +76,7 @@ class AppDetailFragment : Fragment() {
         view.recyclerAppDetail.layoutManager = linearLayoutManager
         view.recyclerAppDetail.adapter = adapter
 
-        val helper = ItemTouchHelper(DragAndDropHelper(adapter, list))
-        helper.attachToRecyclerView(view.recyclerAppDetail)
+        ItemTouchHelper(DragAndDropHelper(adapter, list)).attachToRecyclerView(view.recyclerAppDetail)
 
         activity!!.toolbarBackdrop.setImageBitmap(model.icon)
         activity!!.collapsingToolbarLayout.apply {
@@ -80,16 +88,11 @@ class AppDetailFragment : Fragment() {
         }
         activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorGrayDark)
 
-        val dividerItemDecoration = DividerItemDecoration(
-            view.recyclerAppDetail.context,
-            linearLayoutManager.orientation
-        )
-        view.recyclerAppDetail.addItemDecoration(dividerItemDecoration)
+        view.recyclerAppDetail.addItemDecoration(DividerItemDecoration(view.recyclerAppDetail.context, linearLayoutManager.orientation))
 
         //gc does clean up
         activity!!.fab.setOnClickListener {
             val builder = AlertDialog.Builder(context)
-            val infalter = requireActivity().layoutInflater
             val picker = inflater.inflate(R.layout.picker_alarm, null)
             picker.timePicker.setIs24HourView(true)
             picker.timePicker.hour = 1
@@ -112,33 +115,19 @@ class AppDetailFragment : Fragment() {
                     val action = picker.textPickerDescription.text.toString()
 
                     val item = AlarmModel(0, model.idApp, model.appName, model.appPath,
-                        hour,
-                        min,
-                        repeat,
-                        action,
-                        hour,
-                        min,
-                        repeat,
-                        sA = false,
-                        d1 = false,
-                        d2 = false,
-                        d3 = false,
-                        d4 = false,
-                        d5 = false,
-                        d6 = false,
-                        d7 = false
-                        )
+                        hour, min, repeat, action, hour, min, repeat, false,
+                        arrayOf(true,true,true,true,true,true,true))
+
+                    item.idAlarm = SingletonStatic.db.appAlarmDao().insertAppAlarm(item)
                     list.add(item)
                     adapter.notifyDataSetChanged()
                     dialog.dismiss()
                 }
             }
         }
-
         // Inflate the layout for this fragment
         return view
     }
-
     // TODO: Rename method, update argument and hook method into UI event
     fun onButtonPressed(uri: Uri) {
         listener?.onFragmentInteraction(uri)
@@ -153,23 +142,23 @@ class AppDetailFragment : Fragment() {
         }
     }*/
 
-    override fun onDetach() {
-        super.onDetach()
-        listener = null
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         activity!!.findViewById<ImageView>(R.id.toolbarBackdrop).setImageResource(0)
         activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
     }
 
+    override fun onDetach() {
+        super.onDetach()
+        listener = null
+    }
+
     private class DragAndDropHelper(val adapter: AppAlarmAdapter, val list:ArrayList<AlarmModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
-            var positionDragged = viewHolder.adapterPosition //position of item selected to move
-            var positionTarget = target.adapterPosition //position the selected item is currently at
+            val positionDragged = viewHolder.adapterPosition //position of item selected to move
+            val positionTarget = target.adapterPosition //position the selected item is currently at
 
             Collections.swap(list, positionDragged, positionTarget)
 

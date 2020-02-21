@@ -1,18 +1,22 @@
 package com.graytsar.idleclickercompanion
 
 import androidx.room.*
+import androidx.room.OnConflictStrategy.REPLACE
 
 @Dao
 interface AlarmDAO {
     @Insert
-    suspend fun insertAppAlarm(alarm:AlarmModel)
+    fun insertAppAlarm(alarm:AlarmModel):Long
 
-    @Update
-    suspend fun updateAppAlarm(alarm:AlarmModel)
+    @Update(onConflict = REPLACE)
+    fun updateAppAlarm(alarm:AlarmModel)
 
     @Delete
-    suspend fun deleteAppAlarm(alarm: AlarmModel)
+    fun deleteAppAlarm(alarm: AlarmModel)
 
-    /*@Query( "SELECT * FROM Alarm WHERE idListAlarm = :key")
-    suspend fun findAppAlarm(key: Int)*/
+    @Query("SELECT * FROM Alarm WHERE idListAlarm = :key")
+    fun getAllAppAlarm(key: Long):Array<AlarmModel>
+
+    @Query("SELECT * FROM Alarm WHERE idAlarm = :key")
+    fun dbg(key: Long):Array<AlarmModel>
 }

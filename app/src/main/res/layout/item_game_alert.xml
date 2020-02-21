@@ -26,7 +26,7 @@
                 android:id="@+id/cardCompletionColor"
                 android:layout_width="5dp"
                 android:layout_height="0dp"
-                android:background="#00FF00"
+                android:background="@{alarmModel.obsRepeatLeft != 0 ? @color/colorAccent : @color/colorComplementaryGreen}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -63,7 +63,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
-                android:text="@{alarmModel.obsRepeatLeft}"
+                android:text="@{alarmModel.obsRepeatLeft.toString()}"
                 android:textColor="@color/colorAccent"
                 android:textSize="18sp"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
@@ -106,150 +106,142 @@
                 app:layout_constraintTop_toBottomOf="@+id/textAction"
                 app:srcCompat="@drawable/ic_keyboard_arrow_down_accent_24dp" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/layoutExpandDays"
+            <LinearLayout
+                android:id="@+id/listExpandDays"
                 android:layout_width="0dp"
-                android:layout_height="44dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
+                android:orientation="horizontal"
+                android:paddingLeft="16dp"
+                android:paddingRight="16dp"
                 android:visibility="gone"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/btnDropDown">
 
-                <LinearLayout
+
+                <CheckBox
+                    android:id="@+id/buttonMonday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[0]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="Mo"
+                    android:textColor="@color/colorAccent" />
+
+                <Space
+                    android:id="@+id/space"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/buttonTuesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[1]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="Tu"
+                    android:textColor="@color/colorAccent" />
+
+                <Space
+                    android:id="@+id/space2"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
+
+                <CheckBox
+                    android:id="@+id/buttonWednesday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[2]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="We"
+                    android:textColor="@color/colorAccent" />
+
+                <Space
+                    android:id="@+id/space3"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="8dp"
-                    android:orientation="horizontal"
-                    android:paddingLeft="16dp"
-                    android:paddingRight="16dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:layout_weight="1" />
 
+                <CheckBox
+                    android:id="@+id/buttonThursday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[3]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="Th"
+                    android:textColor="@color/colorAccent" />
 
-                    <CheckBox
-                        android:id="@+id/buttonMonday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d1}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="Mo"
-                        android:textColor="@color/colorAccent" />
+                <Space
+                    android:id="@+id/space4"
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
-                    <Space
-                        android:id="@+id/space"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_weight="1" />
+                <CheckBox
+                    android:id="@+id/buttonFriday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[4]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="Fr"
+                    android:textColor="@color/colorAccent" />
 
-                    <CheckBox
-                        android:id="@+id/buttonTuesday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d2}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="Tu"
-                        android:textColor="@color/colorAccent" />
+                <Space
+                    android:id="@+id/space5"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                    <Space
-                        android:id="@+id/space2"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
+                <CheckBox
+                    android:id="@+id/buttonSaturday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[5]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="Sa"
+                    android:textColor="@color/colorAccent" />
 
-                    <CheckBox
-                        android:id="@+id/buttonWednesday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d3}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="We"
-                        android:textColor="@color/colorAccent" />
+                <Space
+                    android:id="@+id/space6"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1" />
 
-                    <Space
-                        android:id="@+id/space3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
+                <CheckBox
+                    android:id="@+id/buttonSunday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="32dp"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="2dp"
+                    android:buttonTint="@color/check_box_green"
+                    android:checked="@{alarmModel.selectedDaysAr[6]}"
+                    android:onClick="@{alarmModel::onDayClick}"
+                    android:text="So"
+                    android:textColor="@color/colorAccent" />
 
-                    <CheckBox
-                        android:id="@+id/buttonThursday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d4}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="Th"
-                        android:textColor="@color/colorAccent" />
+            </LinearLayout>
 
-                    <Space
-                        android:id="@+id/space4"
-                        android:layout_width="0dp"
-                        android:layout_height="0dp"
-                        android:layout_weight="1" />
-
-                    <CheckBox
-                        android:id="@+id/buttonFriday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d5}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="Fr"
-                        android:textColor="@color/colorAccent" />
-
-                    <Space
-                        android:id="@+id/space5"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <CheckBox
-                        android:id="@+id/buttonSaturday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d6}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="Sa"
-                        android:textColor="@color/colorAccent" />
-
-                    <Space
-                        android:id="@+id/space6"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1" />
-
-                    <CheckBox
-                        android:id="@+id/buttonSunday"
-                        android:layout_width="wrap_content"
-                        android:layout_height="32dp"
-                        android:layout_marginTop="2dp"
-                        android:layout_marginBottom="2dp"
-                        android:buttonTint="@color/check_box_green"
-                        android:checked="@{alarmModel.d7}"
-                        android:onClick="@{alarmModel::onDayClick}"
-                        android:text="So"
-                        android:textColor="@color/colorAccent" />
-
-                </LinearLayout>
-            </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.cardview.widget.CardView>
 </layout>

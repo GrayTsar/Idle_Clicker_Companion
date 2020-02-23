@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_app_detail.view.*
 import kotlinx.android.synthetic.main.picker_alarm.view.*
 import kotlinx.android.synthetic.main.toolbar.*
@@ -57,11 +58,13 @@ class AppDetailFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        val a = arguments?.getString("obj")
         model = Gson().fromJson(arguments?.getString("obj"), AppModel::class.java)
 
         val array = SingletonStatic.db.appAlarmDao().getAllAppAlarm(model.idApp)
         array.forEach {
-            list.add(AlarmModel(it.idAlarm, it.idListAlarm, it.appName, it.appPath, it.selectedHour, it.selectedMinute, it.selectedRepeat, it.selectedAction, it.hourLeft, it.minuteLeft, it.repeatLeft, it.startAlarm, it.selectedDaysAr))
+            list.add(AlarmModel(it.idAlarm, it.idListAlarm, it.appName, it.appPath, it.selectedHour, it.selectedMinute, it.selectedRepeat, it.selectedAction, it.fireAlarmIn, it.startAlarm, it.selectedDaysAr))
         }
     }
 
@@ -88,7 +91,7 @@ class AppDetailFragment : Fragment() {
         }
         activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorGrayDark)
 
-        view.recyclerAppDetail.addItemDecoration(DividerItemDecoration(view.recyclerAppDetail.context, linearLayoutManager.orientation))
+        //view.recyclerAppDetail.addItemDecoration(DividerItemDecoration(view.recyclerAppDetail.context, linearLayoutManager.orientation))
 
         //gc does clean up
         activity!!.fab.setOnClickListener {
@@ -115,7 +118,7 @@ class AppDetailFragment : Fragment() {
                     val action = picker.textPickerDescription.text.toString()
 
                     val item = AlarmModel(0, model.idApp, model.appName, model.appPath,
-                        hour, min, repeat, action, hour, min, repeat, false,
+                        hour, min, repeat, action, 0, false,
                         arrayOf(true,true,true,true,true,true,true))
 
                     item.idAlarm = SingletonStatic.db.appAlarmDao().insertAppAlarm(item)

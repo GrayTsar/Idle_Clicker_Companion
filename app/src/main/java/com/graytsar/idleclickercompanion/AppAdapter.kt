@@ -10,9 +10,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.graytsar.idleclickercompanion.databinding.ItemGameCardBinding
 import kotlinx.android.synthetic.main.item_game_card.view.*
 
-class AppCardAdapter (val context: Context, val list:ArrayList<AppModel>): RecyclerView.Adapter<ViewHolderAppCard>() {
+class AppCardAdapter (val activity: HomeFragment, val list:ArrayList<AppModel>): RecyclerView.Adapter<ViewHolderAppCard>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAppCard {
-        val binding = DataBindingUtil.inflate<ItemGameCardBinding>(LayoutInflater.from(context), R.layout.item_game_card, parent, false)
+        val binding = DataBindingUtil.inflate<ItemGameCardBinding>(LayoutInflater.from(activity.context), R.layout.item_game_card, parent, false)
         return ViewHolderAppCard(binding.root, binding)
     }
 
@@ -21,6 +21,7 @@ class AppCardAdapter (val context: Context, val list:ArrayList<AppModel>): Recyc
     }
 
     override fun onBindViewHolder(holder: ViewHolderAppCard, position: Int) {
+        holder.binding.lifecycleOwner = activity
         holder.binding.appCardModel = list[position]
         holder.icon.setImageBitmap(list[position].icon)
     }

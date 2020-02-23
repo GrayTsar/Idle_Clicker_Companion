@@ -21,12 +21,14 @@ class AppAlarmAdapter(val activity: AppDetailFragment, val list:ArrayList<AlarmM
     override fun onBindViewHolder(holder: ViewHolderAppAlarm, position: Int) {
         holder.binding.lifecycleOwner = activity
         holder.binding.alarmModel = list[position]
-        holder.timeLeft = list[position].obsRepeatLeft.toString() + ":" + list[position].minuteLeft.toString()
+
+        if(list[position].startAlarm){
+            list[position].launchCountdown()
+        }
 
     }
 }
 
 class ViewHolderAppAlarm(view: View, val binding: ItemGameAlertBinding):RecyclerView.ViewHolder(view){
-    var timeLeft:String = view.textTimeLeft.text as String
-    var viewComplete:View = view.cardCompletionColor
+
 }

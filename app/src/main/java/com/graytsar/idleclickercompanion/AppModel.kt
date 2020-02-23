@@ -1,8 +1,10 @@
 package com.graytsar.idleclickercompanion
 
+import android.content.Context
 import android.graphics.Bitmap
 import android.os.Bundle
 import android.view.View
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.NavController
 
 import androidx.navigation.fragment.NavHostFragment
@@ -11,6 +13,7 @@ import androidx.room.Entity
 import androidx.room.Ignore
 import androidx.room.PrimaryKey
 import com.google.gson.Gson
+import com.google.gson.annotations.Expose
 
 @Entity(tableName = "AppCard")
 class AppModel(
@@ -18,9 +21,33 @@ class AppModel(
     @ColumnInfo(name = "appName") var appName: String,
     @ColumnInfo(name = "userName") var userName: String,
     @Ignore var icon: Bitmap?,
-    @ColumnInfo(name = "appPath") var appPath: String) {
+    @ColumnInfo(name = "appPath") var appPath: String,
+    @ColumnInfo(name = "startAll") var startAll: Boolean) {
 
-    constructor():this( 0,"", "", null, "")
+    @Ignore @Transient var obsStartAll = MutableLiveData<Boolean>()
+
+    constructor():this( 0,"", "", null, "", false)
+
+    init {
+        if(idApp > 0){
+            val array = SingletonStatic.db.appAlarmDao().getAllAppAlarm(idApp)
+
+            var allFalse = true
+            array.forEach {
+                if(it.startAlarm == true){
+                    allFalse = false
+                }
+            }
+
+            if(allFalse == true){
+                startAll = false
+                SingletonStatic.db.appCardDao().updateAppCard(this)
+            }
+        }
+
+        obsStartAll.value = startAll
+        val a = 0
+    }
 
     //var serializableObj = SerializableAppCard(appName, userName, icon, appPath)
 
@@ -33,7 +60,24 @@ class AppModel(
         navController.navigate(R.id.appDetailFragment, bundle)
     }
 
+    fun onSwitchClick(view:View){
+        startAll = !startAll
+        obsStartAll.value = startAll
 
+
+        activateAll(view.context)
+
+
+        SingletonStatic.db.appCardDao().updateAppCard(this)
+    }
+
+    private fun activateAll(context: Context){
+        val array = SingletonStatic.db.appAlarmDao().getAllAppAlarm(idApp)
+
+        array.forEach {
+            it.activate(context, startAll)
+        }
+    }
 
     override fun equals(other: Any?): Boolean {
         var bool = false

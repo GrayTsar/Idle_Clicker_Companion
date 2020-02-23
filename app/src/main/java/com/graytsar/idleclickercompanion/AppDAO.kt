@@ -8,7 +8,7 @@ interface AppDAO {
     @Insert
     fun insertAppCard(app:AppModel):Long
 
-    @Update
+    @Update(onConflict = OnConflictStrategy.REPLACE)
     fun updateAppCard(app:AppModel)
 
     @Delete

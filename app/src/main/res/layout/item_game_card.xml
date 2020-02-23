@@ -12,9 +12,9 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="8dp"
+        android:layout_marginLeft="4dp"
         android:layout_marginTop="4dp"
-        android:layout_marginRight="8dp"
+        android:layout_marginRight="4dp"
         android:layout_marginBottom="4dp"
         android:onClick="@{appCardModel::onCardClick}"
         app:cardBackgroundColor="#D81B60">
@@ -51,7 +51,7 @@
                 android:id="@+id/view"
                 android:layout_width="5dp"
                 android:layout_height="0dp"
-                android:background="@color/colorComplementaryGreen"
+                android:background="@{appCardModel.obsStartAll == false ? @color/colorAccent : @color/colorComplementaryGreen}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -107,6 +107,8 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:layout_marginBottom="8dp"
+                android:checked="@{appCardModel.obsStartAll}"
+                android:onClick="@{appCardModel::onSwitchClick}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textAppName" />

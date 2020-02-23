@@ -32,6 +32,4 @@ object SingletonStatic {
         notificationManager!!.notify(notificationID, notification)
     }
 
-
-
 }

@@ -65,9 +65,9 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         val navigationView:NavigationView = activity!!.findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
-        val view =inflater.inflate(R.layout.fragment_home, container, false)
+        val view = inflater.inflate(R.layout.fragment_home, container, false)
         val linearLayoutManager = LinearLayoutManager(context)
-        appCardAdapter = AppCardAdapter(context!!, listAppCard)
+        appCardAdapter = AppCardAdapter(this, listAppCard)
 
         view.recyclerHome.layoutManager = linearLayoutManager
         view.recyclerHome.adapter = appCardAdapter
@@ -91,7 +91,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
                 val label = pm.getApplicationLabel(pm.getApplicationInfo(applicationInfo.packageName, 0)).toString()
                 val draw = pm.getApplicationIcon(pm.getApplicationInfo(applicationInfo.packageName, 0))
 
-                listAppCard.add( AppModel(0, label, "SavarKeiner", draw.toBitmap(), applicationInfo.packageName))
+                listAppCard.add( AppModel(0, label, "SavarKeiner", draw.toBitmap(), applicationInfo.packageName, false))
             }
         }
     }
@@ -129,7 +129,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             val userName = data.extras!!["userName"] as String
             val appName:String = data.extras!!["appName"] as String
 
-            val gameCardModel = AppModel(0, appName, userName, activity!!.packageManager.getApplicationIcon(packageName).toBitmap(), packageName)
+            val gameCardModel = AppModel(0, appName, userName, activity!!.packageManager.getApplicationIcon(packageName).toBitmap(), packageName, false)
             dbNewAppCard(gameCardModel)
         }
     }
@@ -144,8 +144,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             listAppCard.clear()
             array.forEach {
 
-                it.icon = pm.getApplicationIcon(it.appPath).toBitmap()
-                listAppCard.add(it)
+                listAppCard.add(AppModel(it.idApp, it.appName, it.userName, pm.getApplicationIcon(it.appPath).toBitmap(), it.appPath, it.startAll))
             }
             appCardAdapter.notifyDataSetChanged()
         }

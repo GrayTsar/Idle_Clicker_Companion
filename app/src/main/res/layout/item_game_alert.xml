@@ -26,7 +26,7 @@
                 android:id="@+id/cardCompletionColor"
                 android:layout_width="5dp"
                 android:layout_height="0dp"
-                android:background="@{alarmModel.obsRepeatLeft != 0 ? @color/colorAccent : @color/colorComplementaryGreen}"
+                android:background="@{alarmModel.obsStartAlarm == false ? @color/colorAccent : @color/colorComplementaryGreen}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -51,21 +51,12 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
                 android:text="@{alarmModel.obsTimeLeft}"
                 android:textColor="@color/colorAccent"
-                android:textSize="30sp"
-                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
-                app:layout_constraintTop_toBottomOf="@+id/textDayRepeat" />
-
-            <TextView
-                android:id="@+id/textNotifyRepeat"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_marginTop="8dp"
-                android:text="@{alarmModel.obsRepeatLeft.toString()}"
-                android:textColor="@color/colorAccent"
-                android:textSize="18sp"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toStartOf="@+id/btnDropDown"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
                 app:layout_constraintTop_toBottomOf="@+id/textAction" />
 
@@ -80,7 +71,7 @@
                 android:textColor="@color/colorAccent"
                 android:textSize="30sp"
                 app:layout_constraintEnd_toStartOf="@+id/switchStartAlarm"
-                app:layout_constraintStart_toEndOf="@+id/textTimeLeft"
+                app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
                 app:layout_constraintTop_toBottomOf="@+id/textDayRepeat" />
 
             <Switch

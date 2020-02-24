@@ -1,22 +1,23 @@
 package com.graytsar.idleclickercompanion
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
 interface AppDAO {
 
     @Insert
-    fun insertAppCard(app:AppModel):Long
+    fun insertApp(app:AppModel):Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAppCard(app:AppModel)
+    fun updateApp(app:AppModel)
 
     @Delete
-    fun deleteAppCard(app: AppModel)
+    fun deleteApp(app: AppModel)
 
-    @Query("SELECT * FROM AppCard WHERE appPath = :path AND userName = :name")
-    fun findAppCard(path:String, name:String): Array<AppModel>
+    @Query("SELECT * FROM AppCard WHERE idApp = :key")
+    fun findApp(key: Long): Array<AppModel>
 
     @Query("SELECT * FROM AppCard")
-    fun getAll():Array<AppModel>
+    fun getAllApp(): LiveData<List<AppModel>>
 }

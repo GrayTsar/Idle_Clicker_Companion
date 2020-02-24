@@ -1,7 +1,6 @@
 package com.graytsar.idleclickercompanion
 
 import android.content.Context
-import android.graphics.drawable.Drawable
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -23,7 +22,7 @@ class AppSelectAdapter(val context: Context, val list:ArrayList<AppSelectModel>)
 
     override fun onBindViewHolder(holder: ViewHolderAppSelect, position: Int) {
         holder.binding.appSelectModel = list[position]
-        holder.icon.setImageDrawable(list[position].icon)
+        holder.icon.setImageDrawable(list[position].applicationIcon)
     }
 }
 

@@ -1,22 +1,23 @@
 package com.graytsar.idleclickercompanion
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 
 @Dao
 interface AlarmDAO {
     @Insert
-    fun insertAppAlarm(alarm:AlarmModel):Long
+    fun insertAlarm(alarm:AlarmModel):Long
 
     @Update(onConflict = OnConflictStrategy.REPLACE)
-    fun updateAppAlarm(alarm:AlarmModel)
+    fun updateAlarm(alarm:AlarmModel)
 
     @Delete
-    fun deleteAppAlarm(alarm: AlarmModel)
+    fun deleteAlarm(alarm: AlarmModel)
 
     @Query("SELECT * FROM Alarm WHERE idListAlarm = :key")
-    fun getAllAppAlarm(key: Long):Array<AlarmModel>
+    fun getAllAlarm(key: Long):LiveData<List<AlarmModel>>
 
     @Query("SELECT * FROM ALARM WHERE idAlarm = :key")
-    fun getAlarm(key: Long):Array<AlarmModel>
+    fun findAlarm(key: Long):Array<AlarmModel>
 
 }

@@ -4,7 +4,6 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -15,6 +14,7 @@ import kotlinx.android.synthetic.main.item_game_alert.view.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -26,34 +26,33 @@ import java.util.*
 class AlarmModel(
     @PrimaryKey(autoGenerate = true) var idAlarm:Long,
     @ColumnInfo(name = "idListAlarm") var idListAlarm:Long,
-    @ColumnInfo(name = "appName")var appName:String,
-    @ColumnInfo(name = "appPath")var appPath:String,
+    @ColumnInfo(name = "appName")var applicationLabel:String,
+    @ColumnInfo(name = "appPath")var packageName:String,
     @ColumnInfo(name = "hour") var selectedHour:Int,
     @ColumnInfo(name = "minute") var selectedMinute:Int,
     @ColumnInfo(name = "repeat") var selectedRepeat:Int,
     @ColumnInfo(name = "action") var selectedAction:String,
     @ColumnInfo(name = "fireAlarmIn") var fireAlarmIn:Long,
-    @ColumnInfo(name = "startAlarm") var startAlarm:Boolean,
+    @ColumnInfo(name = "startAlarm") var startAlarm:MutableLiveData<Boolean>?,
     @ColumnInfo(name = "selectedDaysAr") var selectedDaysAr:Array<Boolean>) {
 
     @Ignore var obsTextDays:MutableLiveData<String> = MutableLiveData()
     @Ignore var obsTimeLeft:MutableLiveData<String> = MutableLiveData()
-    @Ignore var obsStartAlarm:MutableLiveData<Boolean> = MutableLiveData()
 
     @Ignore private var expandVisibility:Boolean = false
 
     @Ignore private val minuteInMs:Long = 1000L
 
-    constructor():this(0,0,"","",1,0,0,"",0,false, arrayOf(true,true,true,true,true,true,true))
+    constructor():this(0,0,"","",1,0,0,"",0,null, arrayOf(true,true,true,true,true,true,true))
 
     init{
-        obsTextDays.value = "Daily"
-        obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00"
-        obsStartAlarm.value = startAlarm
+        obsTextDays.postValue("Daily")
+        obsTimeLeft.postValue("${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00")
 
         setupDayString()
     }
 
+    //only case when called when not in lifecycle
     fun activate(context:Context, _start:Boolean){
         var start = _start
 
@@ -100,7 +99,7 @@ class AlarmModel(
 
         setAlarm(context, start)
 
-        SingletonStatic.db.appAlarmDao().updateAppAlarm(this)
+        SingletonStatic.db.alarmDao().updateAlarm(this)
     }
 
     private fun setAlarm(context:Context, start:Boolean){
@@ -108,12 +107,12 @@ class AlarmModel(
         val intent = Intent(context, AlarmReceiver::class.java)
 
         if(start == true){
-            startAlarm = true
+            startAlarm!!.value = true
             fireAlarmIn = System.currentTimeMillis() + selectedMinute * minuteInMs + selectedHour * 3600000
             intent.putExtra("time", fireAlarmIn)
-            intent.putExtra("appPath", appPath)
+            intent.putExtra("appPath", packageName)
             intent.putExtra("action", selectedAction)
-            intent.putExtra("appName", appName)
+            intent.putExtra("appName", applicationLabel)
             intent.putExtra("idAlarm", idAlarm)
             val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
 
@@ -126,15 +125,15 @@ class AlarmModel(
             val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
             alarmManager.cancel(alarmIntent)
             fireAlarmIn = 0
-            startAlarm = false
+            startAlarm!!.value = false
         }
     }
 
     fun onClickStartAlarm(view:View){
-        /*startAlarm = !startAlarm
-        obsStartAlarm.value = startAlarm
+        val b = startAlarm!!.value!!
+        startAlarm!!.value = !b
 
-        if(startAlarm){
+        if(startAlarm!!.value!!){
             setAlarm(view.context, true)
 
             launchCountdown()
@@ -143,12 +142,12 @@ class AlarmModel(
             obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00"
         }
 
-        SingletonStatic.db.appAlarmDao().updateAppAlarm(this)*/
+        //SingletonStatic.db.alarmDao().updateAlarm(this)
     }
 
     fun launchCountdown(){
         GlobalScope.launch {
-            SingletonStatic.db.appAlarmDao().updateAppAlarm(this@AlarmModel)
+            //SingletonStatic.db.alarmDao().updateAlarm(this@AlarmModel)
             val formatter = SimpleDateFormat("HH:mm:ss")
             var ms = fireAlarmIn - System.currentTimeMillis()
 
@@ -158,12 +157,13 @@ class AlarmModel(
 
                 obsTimeLeft.postValue(formatter.format(Calendar.getInstance().apply { timeInMillis = ms }.time))
             }
-            startAlarm = !startAlarm
-            obsStartAlarm.postValue(startAlarm)
+            val b = startAlarm!!.value!!
+            startAlarm!!.postValue(!b)
+
             obsTimeLeft.postValue("${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00")
             //pushNotify()
 
-            SingletonStatic.db.appAlarmDao().updateAppAlarm(this@AlarmModel)
+            //SingletonStatic.db.alarmDao().updateAlarm(this@AlarmModel)
         }
     }
 
@@ -194,7 +194,7 @@ class AlarmModel(
 
         setupDayString()
 
-        SingletonStatic.db.appAlarmDao().updateAppAlarm(this)
+        //SingletonStatic.db.alarmDao().updateAlarm(this)
     }
 
     fun onExpandClick(view: View){
@@ -247,15 +247,22 @@ class AlarmModel(
             }
         }
 
-        obsTextDays.value = if(alwaysTrue)
+        val str = if(alwaysTrue)
             "Daily"
         else if(!alwaysTrue && iFalseDays == 7)
             "Never"
         else
             stringDays
+
+        try{
+            obsTextDays.value = str
+        } catch (e:Exception){
+            obsTextDays.postValue(str)
+        }
+
     }
 
     private fun pushNotify(){
-        SingletonStatic.pushNotify(appPath, appName, selectedAction)
+        SingletonStatic.pushNotify(packageName, applicationLabel, selectedAction)
     }
 }

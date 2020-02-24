@@ -3,6 +3,7 @@ package com.graytsar.idleclickercompanion
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import androidx.lifecycle.MutableLiveData
 
 class AlarmReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -10,16 +11,40 @@ class AlarmReceiver: BroadcastReceiver() {
             // Set the alarm here.
             //Log.d("DBG: ", "Alarm onReceive")
         }
-        //toDo update recylcerHome from context. context == MainActivity
-
 
         val bundle = intent.extras!!
+        val idAlarm = bundle.getLong("idAlarm")
 
-        val alarmDB = SingletonStatic.db.appAlarmDao().getAlarm(bundle.getLong("idAlarm"))[0]
-        val alarm = AlarmModel(alarmDB.idAlarm, alarmDB.idListAlarm, alarmDB.appName, alarmDB.appPath, alarmDB.selectedHour, alarmDB.selectedMinute, alarmDB.selectedRepeat, alarmDB.selectedAction, 0, false, alarmDB.selectedDaysAr)
-        SingletonStatic.db.appAlarmDao().updateAppAlarm(alarm)
+        val alarm = SingletonStatic.db.alarmDao().findAlarm(idAlarm)[0]
+        alarm.startAlarm!!.value = false
+        SingletonStatic.db.alarmDao().updateAlarm(alarm)
+
+        val array = SingletonStatic.db.alarmDao().findAlarm(alarm.idListAlarm)
+        var allFalse = true
+        array.forEach {
+            if(it.startAlarm!!.value!! == true){
+                allFalse = false
+            }
+        }
+
+        val app = SingletonStatic.db.appDao().findApp(alarm.idListAlarm)[0]
+
+        if(allFalse == true){
+            app.startAll!!.value = false
+            //SingletonStatic.db.appCardDao().updateApp(this)
+        }
+        else if (allFalse == false){
+            app.startAll!!.value = true
+        }
+        SingletonStatic.db.appDao().updateApp(app)
 
 
+
+
+
+
+
+        //(context as MainActivity).recyclerHome?.adapter?.notifyDataSetChanged()
 
         //val time = intent.getLong("time")
         //val path = bundle.getString("appPath")

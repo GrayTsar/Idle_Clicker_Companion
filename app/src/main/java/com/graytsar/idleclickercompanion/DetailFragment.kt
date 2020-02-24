@@ -3,28 +3,22 @@ package com.graytsar.idleclickercompanion
 import android.app.AlertDialog
 import android.graphics.Color
 import android.net.Uri
-import android.os.AsyncTask
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.appbar.CollapsingToolbarLayout
-import com.google.gson.Gson
-import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.fragment_app_detail.view.*
 import kotlinx.android.synthetic.main.picker_alarm.view.*
 import kotlinx.android.synthetic.main.toolbar.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -48,9 +42,9 @@ class AppDetailFragment : Fragment() {
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    private val list = ArrayList<AlarmModel>()
-    lateinit var adapter:AppAlarmAdapter
-    lateinit var model:AppModel
+    private var list:List<AlarmModel>? = null
+    private var adapter:AppAlarmAdapter? = null
+    private lateinit var model:AppModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,13 +53,8 @@ class AppDetailFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        val a = arguments?.getString("obj")
-        model = Gson().fromJson(arguments?.getString("obj"), AppModel::class.java)
-
-        val array = SingletonStatic.db.appAlarmDao().getAllAppAlarm(model.idApp)
-        array.forEach {
-            list.add(AlarmModel(it.idAlarm, it.idListAlarm, it.appName, it.appPath, it.selectedHour, it.selectedMinute, it.selectedRepeat, it.selectedAction, it.fireAlarmIn, it.startAlarm, it.selectedDaysAr))
-        }
+        model = SingletonStatic.db.appDao().findApp(arguments?.getLong("key")!!)[0]
+        model.icon = context!!.packageManager.getApplicationIcon(model.packageName).toBitmap()
     }
 
     override fun onCreateView(
@@ -73,13 +62,16 @@ class AppDetailFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         val view = inflater.inflate(R.layout.fragment_app_detail, container, false)
-        val linearLayoutManager = LinearLayoutManager(context)
-        adapter = AppAlarmAdapter(this, list)
+        view.recyclerAppDetail.layoutManager = LinearLayoutManager(context)
 
-        view.recyclerAppDetail.layoutManager = linearLayoutManager
-        view.recyclerAppDetail.adapter = adapter
+        val array = SingletonStatic.db.alarmDao().getAllAlarm(model.idApp)
+        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            list = it
+            adapter = AppAlarmAdapter(this, it)
+            view.recyclerAppDetail.adapter = adapter
 
-        ItemTouchHelper(DragAndDropHelper(adapter, list)).attachToRecyclerView(view.recyclerAppDetail)
+            ItemTouchHelper(DragAndDropHelper(adapter!!, list!!)).attachToRecyclerView(view.recyclerAppDetail)
+        })
 
         activity!!.toolbarBackdrop.setImageBitmap(model.icon)
         activity!!.collapsingToolbarLayout.apply {
@@ -87,7 +79,7 @@ class AppDetailFragment : Fragment() {
             //setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
             setCollapsedTitleTextColor(Color.WHITE)
             setExpandedTitleColor(Color.WHITE)
-            title = model.userName
+            title = model.userName!!.value
         }
         activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorGrayDark)
 
@@ -117,13 +109,12 @@ class AppDetailFragment : Fragment() {
                     val repeat = Integer.parseInt(picker.textPickerRepeat.text.toString())
                     val action = picker.textPickerDescription.text.toString()
 
-                    val item = AlarmModel(0, model.idApp, model.appName, model.appPath,
-                        hour, min, repeat, action, 0, false,
+                    val item = AlarmModel(0, model.idApp, model.applicationLabel, model.packageName,
+                        hour, min, repeat, action, 0, MutableLiveData<Boolean>(false),
                         arrayOf(true,true,true,true,true,true,true))
 
-                    item.idAlarm = SingletonStatic.db.appAlarmDao().insertAppAlarm(item)
-                    list.add(item)
-                    adapter.notifyDataSetChanged()
+                    SingletonStatic.db.alarmDao().insertAlarm(item)
+
                     dialog.dismiss()
                 }
             }
@@ -145,10 +136,21 @@ class AppDetailFragment : Fragment() {
         }
     }*/
 
+    override fun onStop() {
+        list?.forEach{
+            SingletonStatic.db.alarmDao().updateAlarm(it)
+        }
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         activity!!.findViewById<ImageView>(R.id.toolbarBackdrop).setImageResource(0)
         activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     override fun onDetach() {
@@ -156,7 +158,7 @@ class AppDetailFragment : Fragment() {
         listener = null
     }
 
-    private class DragAndDropHelper(val adapter: AppAlarmAdapter, val list:ArrayList<AlarmModel>): ItemTouchHelper.SimpleCallback(
+    private class DragAndDropHelper(val adapter: AppAlarmAdapter, val list:List<AlarmModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
@@ -176,8 +178,7 @@ class AppDetailFragment : Fragment() {
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            adapter.list.removeAt(viewHolder.adapterPosition)
-            adapter.notifyDataSetChanged()
+            SingletonStatic.db.alarmDao().deleteAlarm(list[viewHolder.adapterPosition])
         }
     }
 

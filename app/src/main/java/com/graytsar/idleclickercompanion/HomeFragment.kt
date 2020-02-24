@@ -1,31 +1,22 @@
 package com.graytsar.idleclickercompanion
 
 import android.content.Intent
-import android.content.pm.ApplicationInfo
-import android.content.pm.PackageManager
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
-import androidx.palette.graphics.Palette
+import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
-import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.android.synthetic.main.fragment_home.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
-import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -47,8 +38,9 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
     private var param2: String? = null
     private var listener: OnFragmentInteractionListener? = null
 
-    private val listAppCard = ArrayList<AppModel>()
-    private lateinit var appCardAdapter:AppCardAdapter
+    private var list:List<AppModel>? = null
+    private var adapter:AppCardAdapter? = null
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -66,34 +58,20 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         navigationView.setNavigationItemSelectedListener(this)
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
-        val linearLayoutManager = LinearLayoutManager(context)
-        appCardAdapter = AppCardAdapter(this, listAppCard)
+        view.recyclerHome.layoutManager = LinearLayoutManager(context)
 
-        view.recyclerHome.layoutManager = linearLayoutManager
-        view.recyclerHome.adapter = appCardAdapter
+        //toDo: observer runs async?
+        val array = SingletonStatic.db.appDao().getAllApp()
+        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            list = it
+            adapter = AppCardAdapter(this, it)
+            view.recyclerHome.adapter = adapter
 
-        val helper = ItemTouchHelper(DragAndDropHelper(appCardAdapter, listAppCard))
-        helper.attachToRecyclerView(view.recyclerHome)
-
-        dbGetAll()
-        //test()
+            ItemTouchHelper(DragAndDropHelper(adapter!!, list!!)).attachToRecyclerView(view.recyclerHome)
+        })
 
         // Inflate the layout for this fragment
         return view
-    }
-
-    fun test(){
-        val pm = activity!!.packageManager
-        val listPackages = pm.getInstalledApplications(PackageManager.GET_META_DATA)
-        for (applicationInfo in listPackages) {
-
-            if(applicationInfo.flags and ApplicationInfo.FLAG_SYSTEM == 0){
-                val label = pm.getApplicationLabel(pm.getApplicationInfo(applicationInfo.packageName, 0)).toString()
-                val draw = pm.getApplicationIcon(pm.getApplicationInfo(applicationInfo.packageName, 0))
-
-                listAppCard.add( AppModel(0, label, "SavarKeiner", draw.toBitmap(), applicationInfo.packageName, false))
-            }
-        }
     }
 
     // TODO: Rename method, update argument and hook method into UI event
@@ -110,9 +88,23 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         }
     }*/
 
+    override fun onPause() {
+        list?.forEach {
+            SingletonStatic.db.appDao().updateApp(it)
+        }
+        super.onPause()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        listAppCard.clear()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
     }
 
     override fun onDetach() {
@@ -127,49 +119,19 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         if(data != null && resultCode == 1){
             val packageName = data.extras!!["packageName"] as String
             val userName = data.extras!!["userName"] as String
-            val appName:String = data.extras!!["appName"] as String
+            val applicationLabel:String = data.extras!!["applicationLabel"] as String
 
-            val gameCardModel = AppModel(0, appName, userName, activity!!.packageManager.getApplicationIcon(packageName).toBitmap(), packageName, false)
-            dbNewAppCard(gameCardModel)
+            val model = AppModel(0,
+                applicationLabel,
+                MutableLiveData<String>(userName),
+                activity!!.packageManager.getApplicationIcon(packageName).toBitmap(),
+                packageName,
+                MutableLiveData<Boolean>(false))
+            SingletonStatic.db.appDao().insertApp(model)
         }
     }
 
-    private fun dbGetAll(){
-        val array = SingletonStatic.db.appCardDao().getAll()
-        val pm = activity!!.packageManager
-
-        Log.d("DBG: ", "Ar Size -> ${array.size}")
-
-        if(array.isNotEmpty()){
-            listAppCard.clear()
-            array.forEach {
-
-                listAppCard.add(AppModel(it.idApp, it.appName, it.userName, pm.getApplicationIcon(it.appPath).toBitmap(), it.appPath, it.startAll))
-            }
-            appCardAdapter.notifyDataSetChanged()
-        }
-    }
-
-    private fun dbNewAppCard(gameModel:AppModel){
-        val arCard = SingletonStatic.db.appCardDao().findAppCard(gameModel.appPath, gameModel.userName)
-
-        if(arCard.isEmpty() || (gameModel != arCard[0])){
-            val id = SingletonStatic.db.appCardDao().insertAppCard(gameModel)
-            gameModel.idApp = id
-        } else {
-            gameModel.idApp = arCard[0].idApp
-            gameModel.icon = arCard[0].icon
-            Snackbar.make(recyclerHome, "card exists", Snackbar.LENGTH_LONG).show()
-        }
-
-        //if card is not the same then add
-        if(!listAppCard.contains(gameModel)){
-            listAppCard.add(0, gameModel)
-        }
-        appCardAdapter.notifyDataSetChanged()
-    }
-
-    private class DragAndDropHelper(val adapter: AppCardAdapter, val list: java.util.ArrayList<AppModel>): ItemTouchHelper.SimpleCallback(
+    private class DragAndDropHelper(val adapter: AppCardAdapter, val list: List<AppModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
@@ -189,8 +151,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            adapter.list.removeAt(viewHolder.adapterPosition)
-            adapter.notifyDataSetChanged()
+            SingletonStatic.db.appDao().deleteApp(list[viewHolder.adapterPosition])
         }
     }
 

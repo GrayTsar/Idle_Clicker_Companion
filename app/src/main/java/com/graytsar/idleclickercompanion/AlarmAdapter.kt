@@ -8,7 +8,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.graytsar.idleclickercompanion.databinding.ItemGameAlertBinding
 import kotlinx.android.synthetic.main.item_game_alert.view.*
 
-class AppAlarmAdapter(val activity: AppDetailFragment, val list:ArrayList<AlarmModel>): RecyclerView.Adapter<ViewHolderAppAlarm>() {
+class AppAlarmAdapter(val activity: AppDetailFragment, val list:List<AlarmModel>): RecyclerView.Adapter<ViewHolderAppAlarm>() {
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAppAlarm {
         val binding = DataBindingUtil.inflate<ItemGameAlertBinding>(LayoutInflater.from(activity.context), R.layout.item_game_alert, parent, false)
         return ViewHolderAppAlarm(binding.root, binding)
@@ -22,7 +22,7 @@ class AppAlarmAdapter(val activity: AppDetailFragment, val list:ArrayList<AlarmM
         holder.binding.lifecycleOwner = activity
         holder.binding.alarmModel = list[position]
 
-        if(list[position].startAlarm){
+        if(list[position].startAlarm!!.value!!){
             list[position].launchCountdown()
         }
 

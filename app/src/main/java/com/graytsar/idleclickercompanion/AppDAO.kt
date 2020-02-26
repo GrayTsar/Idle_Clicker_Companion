@@ -15,7 +15,7 @@ interface AppDAO {
     @Delete
     fun deleteApp(app: AppModel)
 
-    @Query("SELECT * FROM AppCard WHERE idApp = :key")
+    @Query("SELECT * FROM AppCard WHERE idApp = :key ORDER BY position ASC")
     fun findApp(key: Long): Array<AppModel>
 
     @Query("SELECT * FROM AppCard")

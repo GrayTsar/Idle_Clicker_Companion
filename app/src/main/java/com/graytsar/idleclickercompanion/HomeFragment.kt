@@ -10,12 +10,16 @@ import android.view.ViewGroup
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.fragment_home.view.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
 
 
@@ -39,8 +43,9 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
     private var listener: OnFragmentInteractionListener? = null
 
     private var list:List<AppModel>? = null
-    private var adapter:AppCardAdapter? = null
+    private var adapter:AppCardAdapter = AppCardAdapter(this)
 
+    private var helper:ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,16 +64,41 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
         view.recyclerHome.layoutManager = LinearLayoutManager(context)
+        view.recyclerHome.adapter = adapter
+
+        //activity!!.collapsingToolbarLayout.apply {
+        //    setBackgroundColor(ContextCompat.getColor(context, R.color.colorComplementaryGreen))
+        //}
+        //activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorComplementaryGreen)
 
         //toDo: observer runs async?
-        val array = SingletonStatic.db.appDao().getAllApp()
-        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            list = it
-            adapter = AppCardAdapter(this, it)
-            view.recyclerHome.adapter = adapter
+        val array = SingletonStatic.db!!.appDao().getAllApp()
 
-            ItemTouchHelper(DragAndDropHelper(adapter!!, list!!)).attachToRecyclerView(view.recyclerHome)
+        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+            list = null
+            list = it.sortedBy { appModel ->
+                appModel.position
+            }
+
+            if(list!!.isEmpty()){
+                view.empty_home1.visibility = View.VISIBLE
+            }
+            else{
+                view.empty_home1.visibility = View.GONE
+            }
+
+            adapter.submitList(list)
+
+            if(helper != null){
+                helper!!.attachToRecyclerView(null)
+                helper = null
+            }
+
+            helper = ItemTouchHelper(DragAndDropHelper(adapter, list!!))
+            helper!!.attachToRecyclerView(view.recyclerHome)
         })
+
+        activity!!.drawer_layout.closeDrawers()
 
         // Inflate the layout for this fragment
         return view
@@ -90,21 +120,10 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
 
     override fun onPause() {
         list?.forEach {
-            SingletonStatic.db.appDao().updateApp(it)
+            SingletonStatic.db!!.appDao().updateApp(it)
         }
+
         super.onPause()
-    }
-
-    override fun onStop() {
-        super.onStop()
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
     }
 
     override fun onDetach() {
@@ -126,17 +145,21 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
                 MutableLiveData<String>(userName),
                 activity!!.packageManager.getApplicationIcon(packageName).toBitmap(),
                 packageName,
-                MutableLiveData<Boolean>(false))
-            SingletonStatic.db.appDao().insertApp(model)
+                MutableLiveData<Boolean>(false),
+                list!!.size)
+            SingletonStatic.db!!.appDao().insertApp(model)
         }
     }
 
-    private class DragAndDropHelper(val adapter: AppCardAdapter, val list: List<AppModel>): ItemTouchHelper.SimpleCallback(
+    private class DragAndDropHelper(val adapter: AppCardAdapter, var list: List<AppModel>): ItemTouchHelper.SimpleCallback(
         ItemTouchHelper.UP or ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
 
         override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder ): Boolean {
             val positionDragged = viewHolder.adapterPosition //position of item selected to move
             val positionTarget = target.adapterPosition //position the selected item is currently at
+
+            list[positionDragged].position = positionTarget
+            list[positionTarget].position = positionDragged
 
             Collections.swap(list, positionDragged, positionTarget)
 
@@ -146,12 +169,14 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             }
 
             //standard notify to update ui
-            recyclerView.adapter!!.notifyItemMoved(positionDragged, positionTarget)
+            adapter.notifyItemMoved(positionDragged, positionTarget)
             return false
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            SingletonStatic.db.appDao().deleteApp(list[viewHolder.adapterPosition])
+            GlobalScope.launch {
+                SingletonStatic.db!!.appDao().deleteApp(list[viewHolder.adapterPosition])
+            }
         }
     }
 
@@ -192,8 +217,17 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
     }
 
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
+        val f = activity!!.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val navController:NavController = f.navController //for fragment switch
+
         when(p0.itemId){
+            R.id.nav_home -> {
+                navController.popBackStack()
+                navController.navigate(R.id.homeFragment)
+            }
             R.id.nav_select_game -> {
+                activity!!.drawer_layout.closeDrawers()
+
                 val intent = Intent(this.context, AppSelectActivity::class.java)
                 startActivityForResult(intent, 1)
             }

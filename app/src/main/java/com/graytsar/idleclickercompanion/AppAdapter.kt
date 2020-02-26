@@ -3,32 +3,38 @@ package com.graytsar.idleclickercompanion
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.constraintlayout.utils.widget.ImageFilterView
 import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.graytsar.idleclickercompanion.databinding.ItemGameCardBinding
-import kotlinx.android.synthetic.main.item_game_card.view.*
 
-class AppCardAdapter (val activity: HomeFragment, val list:List<AppModel>): RecyclerView.Adapter<ViewHolderAppCard>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAppCard {
+class AppCardAdapter (private val activity: HomeFragment): ListAdapter<AppModel, ViewHolderApp>(AppModelDiffCallback()) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderApp {
         val binding = DataBindingUtil.inflate<ItemGameCardBinding>(LayoutInflater.from(activity.context), R.layout.item_game_card, parent, false)
-        return ViewHolderAppCard(binding.root, binding)
+        return ViewHolderApp(binding.root, binding)
     }
 
-    override fun getItemCount(): Int {
-        return list.size
-    }
-
-    override fun onBindViewHolder(holder: ViewHolderAppCard, position: Int) {
-        val pm = activity.context!!.packageManager
-        list[position].icon = pm.getApplicationIcon(list[position].packageName).toBitmap()
+    override fun onBindViewHolder(holder: ViewHolderApp, position: Int) {
+        getItem(position).icon = activity.context!!.packageManager.getApplicationIcon(getItem(position).packageName).toBitmap()
 
         holder.binding.lifecycleOwner = activity
-        holder.binding.appCardModel = list[position]
+        holder.binding.appCardModel = getItem(position)
     }
 }
 
-class ViewHolderAppCard (view: View, val binding:ItemGameCardBinding) : RecyclerView.ViewHolder(view) {
-    var icon: ImageFilterView = view.iconGame
+class ViewHolderApp (view: View, val binding:ItemGameCardBinding) : RecyclerView.ViewHolder(view) {
+
+}
+
+class AppModelDiffCallback: DiffUtil.ItemCallback<AppModel>(){
+    override fun areItemsTheSame(oldItem: AppModel, newItem: AppModel): Boolean {
+        return oldItem.idApp == newItem.idApp
+    }
+
+    override fun areContentsTheSame(oldItem: AppModel, newItem: AppModel): Boolean {
+        return (oldItem.applicationLabel == newItem.applicationLabel) && (oldItem.packageName == newItem.packageName) && (oldItem.userName?.value == newItem.userName?.value) && (oldItem.startAll?.value == newItem.startAll?.value)
+    }
 }

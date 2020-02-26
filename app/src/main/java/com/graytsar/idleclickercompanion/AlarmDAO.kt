@@ -17,7 +17,13 @@ interface AlarmDAO {
     @Query("SELECT * FROM Alarm WHERE idListAlarm = :key")
     fun getAllAlarm(key: Long):LiveData<List<AlarmModel>>
 
-    @Query("SELECT * FROM ALARM WHERE idAlarm = :key")
-    fun findAlarm(key: Long):Array<AlarmModel>
+    @Query("SELECT * FROM Alarm WHERE idListAlarm = :key")
+    fun getAllAlarmSimple(key: Long):Array<AlarmModel>
+
+    @Query("SELECT * FROM Alarm WHERE idAlarm = :key")
+    fun findAlarmByIdAlarm(key: Long):Array<AlarmModel>
+
+    @Query("SELECT * FROM Alarm WHERE idListAlarm = :key")
+    fun findAlarmByIdApp(key: Long):Array<AlarmModel>
 
 }

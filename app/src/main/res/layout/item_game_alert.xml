@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto" >
     <data>
         <variable
             name="alarmModel"
@@ -12,21 +11,22 @@
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="2dp"
-        android:layout_marginTop="1dp"
-        android:layout_marginRight="2dp"
-        android:layout_marginBottom="1dp">
+        android:layout_marginLeft="4dp"
+        android:layout_marginTop="2dp"
+        android:layout_marginRight="4dp"
+        android:layout_marginBottom="2dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/alarmConstraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/colorGray">
 
             <View
                 android:id="@+id/cardCompletionColor"
                 android:layout_width="5dp"
                 android:layout_height="0dp"
-                android:background="@{alarmModel.startAlarm == false ? @color/colorAccent : @color/colorComplementaryGreen}"
+                android:background="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -39,7 +39,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="8dp"
                 android:text="@{alarmModel.obsTextDays}"
-                android:textColor="@color/colorAccent"
+                android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
@@ -53,7 +53,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@{alarmModel.obsTimeLeft}"
-                android:textColor="@color/colorAccent"
+                android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 android:textSize="24sp"
                 app:layout_constraintEnd_toStartOf="@+id/btnDropDown"
                 app:layout_constraintHorizontal_bias="0.0"
@@ -68,7 +68,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@{alarmModel.selectedAction}"
-                android:textColor="@color/colorAccent"
+                android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 android:textSize="30sp"
                 app:layout_constraintEnd_toStartOf="@+id/switchStartAlarm"
                 app:layout_constraintStart_toEndOf="@+id/cardCompletionColor"
@@ -82,6 +82,8 @@
                 android:layout_marginEnd="8dp"
                 android:checked="@{alarmModel.startAlarm}"
                 android:onClick="@{alarmModel::onClickStartAlarm}"
+                android:thumbTint="@color/switch_color"
+                android:trackTint="@color/switch_color"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -92,10 +94,12 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:clickable="true"
+                android:tint="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 android:onClick="@{alarmModel::onExpandClick}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textAction"
-                app:srcCompat="@drawable/ic_keyboard_arrow_down_accent_24dp" />
+                app:srcCompat="@drawable/ic_keyboard_arrow_down_black_24dp"
+                />
 
             <LinearLayout
                 android:id="@+id/listExpandDays"
@@ -117,11 +121,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[0]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="Mo"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/mo"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space"
@@ -135,11 +139,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[1]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="Tu"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/tu"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space2"
@@ -153,11 +157,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[2]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="We"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/we"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space3"
@@ -171,11 +175,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[3]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="Th"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/th"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space4"
@@ -189,11 +193,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[4]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="Fr"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/fr"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space5"
@@ -207,11 +211,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[5]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="Sa"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/sa"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
                 <Space
                     android:id="@+id/space6"
@@ -225,11 +229,11 @@
                     android:layout_height="32dp"
                     android:layout_marginTop="2dp"
                     android:layout_marginBottom="2dp"
-                    android:buttonTint="@color/check_box_green"
+                    android:buttonTint="@{alarmModel.startAlarm == true ? @colorStateList/check_box_color : @colorStateList/check_box_color_completed}"
                     android:checked="@{alarmModel.selectedDaysAr[6]}"
                     android:onClick="@{alarmModel::onDayClick}"
-                    android:text="So"
-                    android:textColor="@color/colorAccent" />
+                    android:text="@string/so"
+                    android:textColor="@{alarmModel.startAlarm == true ? @color/colorAccent : @color/colorComplementaryGreen}" />
 
             </LinearLayout>
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout xmlns:tools="http://schemas.android.com/tools"
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <data>
@@ -16,29 +16,20 @@
         android:layout_marginTop="2dp"
         android:layout_marginRight="4dp"
         android:layout_marginBottom="2dp"
-        android:background="@color/colorGrayTitle"
         android:onClick="@{appCardModel::onCardClick}"
-        app:cardCornerRadius="1dp">
+        app:cardCornerRadius="2dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/alarmConstraintLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <View
-                android:id="@+id/backcolorCard2"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:background="#e8ede4"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="@+id/view"
-                app:layout_constraintTop_toBottomOf="@+id/iconGame" />
+            android:layout_height="wrap_content"
+            android:background="@color/colorGray">
 
             <View
                 android:id="@+id/view"
                 android:layout_width="5dp"
                 android:layout_height="0dp"
-                android:background="@{appCardModel.startAll == false ? @color/colorAccent : @color/colorComplementaryGreen}"
+                android:background="@{appCardModel.startAll == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -47,11 +38,9 @@
                 android:id="@+id/iconGame"
                 android:layout_width="150dp"
                 android:layout_height="150dp"
-                android:layout_marginStart="1dp"
-                android:layout_marginTop="1dp"
                 app:layout_constraintStart_toEndOf="@+id/view"
                 app:layout_constraintTop_toTopOf="parent"
-                app:saturation="0"
+
                 app:srcCompat="@{appCardModel.icon}" />
 
             <TextView
@@ -63,7 +52,7 @@
                 android:ellipsize="end"
                 android:gravity="center_vertical"
                 android:text="@{appCardModel.applicationLabel}"
-                android:textColor="#D81B60"
+                android:textColor="@{appCardModel.startAll == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/iconGame"
@@ -75,6 +64,7 @@
                 android:id="@+id/linearLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:background="@color/colorLightGray"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -91,7 +81,7 @@
                     android:ellipsize="end"
                     android:maxLines="1"
                     android:text="@{appCardModel.userName}"
-                    android:textColor="#D81B60"
+                    android:textColor="@{appCardModel.startAll == true ? @color/colorAccent : @color/colorComplementaryGreen}"
                     android:textSize="18sp" />
 
                 <Switch
@@ -100,6 +90,8 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:layout_weight="1"
+                    android:thumbTint="@color/switch_color"
+                    android:trackTint="@color/switch_color"
                     android:checked="@{appCardModel.startAll}"
                     android:onClick="@{appCardModel::onSwitchClick}" />
 

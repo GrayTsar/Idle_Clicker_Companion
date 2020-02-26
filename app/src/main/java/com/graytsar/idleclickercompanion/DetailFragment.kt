@@ -8,19 +8,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.content.ContextCompat
 import androidx.core.graphics.drawable.toBitmap
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.google.android.material.appbar.CollapsingToolbarLayout
-import kotlinx.android.synthetic.main.fragment_app_detail.view.*
+import kotlinx.android.synthetic.main.fragment_detail.view.*
 import kotlinx.android.synthetic.main.picker_alarm.view.*
 import kotlinx.android.synthetic.main.toolbar.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -43,8 +42,10 @@ class AppDetailFragment : Fragment() {
     private var listener: OnFragmentInteractionListener? = null
 
     private var list:List<AlarmModel>? = null
-    private var adapter:AppAlarmAdapter? = null
+    private var adapter:AppAlarmAdapter = AppAlarmAdapter(this)
     private lateinit var model:AppModel
+
+    private var helper:ItemTouchHelper? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,7 +54,7 @@ class AppDetailFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        model = SingletonStatic.db.appDao().findApp(arguments?.getLong("key")!!)[0]
+        model = SingletonStatic.db!!.appDao().findApp(arguments?.getLong("key")!!)[0]
         model.icon = context!!.packageManager.getApplicationIcon(model.packageName).toBitmap()
     }
 
@@ -61,27 +62,44 @@ class AppDetailFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val view = inflater.inflate(R.layout.fragment_app_detail, container, false)
+        val view = inflater.inflate(R.layout.fragment_detail, container, false)
         view.recyclerAppDetail.layoutManager = LinearLayoutManager(context)
+        view.recyclerAppDetail.adapter = adapter
 
-        val array = SingletonStatic.db.alarmDao().getAllAlarm(model.idApp)
+        val array = SingletonStatic.db!!.alarmDao().getAllAlarm(model.idApp)
         array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
-            list = it
-            adapter = AppAlarmAdapter(this, it)
-            view.recyclerAppDetail.adapter = adapter
+            list = null
+            list = it.sortedBy { alarmModel ->
+                alarmModel.position
+            }
 
-            ItemTouchHelper(DragAndDropHelper(adapter!!, list!!)).attachToRecyclerView(view.recyclerAppDetail)
+            if(list!!.isEmpty()){
+                view.empty_home2.visibility = View.VISIBLE
+            }
+            else{
+                view.empty_home2.visibility = View.GONE
+            }
+
+            adapter.submitList(list)
+
+            if(helper != null){
+                helper!!.attachToRecyclerView(null)
+                helper = null
+            }
+
+            helper = ItemTouchHelper(DragAndDropHelper(adapter, list!!))
+            helper!!.attachToRecyclerView(view.recyclerAppDetail)
         })
 
         activity!!.toolbarBackdrop.setImageBitmap(model.icon)
         activity!!.collapsingToolbarLayout.apply {
-            setBackgroundColor(ContextCompat.getColor(context, R.color.colorGrayTitle))
+            //setBackgroundColor(ContextCompat.getColor(context, R.color.colorComplementaryGreen))
             //setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
             setCollapsedTitleTextColor(Color.WHITE)
             setExpandedTitleColor(Color.WHITE)
             title = model.userName!!.value
         }
-        activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorGrayDark)
+        //activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorComplementaryGreen)
 
         //view.recyclerAppDetail.addItemDecoration(DividerItemDecoration(view.recyclerAppDetail.context, linearLayoutManager.orientation))
 
@@ -97,23 +115,22 @@ class AppDetailFragment : Fragment() {
             builder.create()
             val dialog = builder.show()
 
-            picker.dialogPositiveButton.setOnClickListener{
+            picker.dialogButtonDetail.setOnClickListener{
 
-                if(picker.textPickerDescription.text.isEmpty()){
-                    picker.textPickerDescription.error = "Field cannot be blank"
-                } else if(picker.textPickerRepeat.text.isEmpty()){
-                    picker.textPickerRepeat.error = "Field cannot be blank"
-                } else{
+                if(picker.textPickerDetail.text.isEmpty()){
+                    picker.textPickerDetail.error = getString(R.string.textPickerErrorHint)
+                } else {
                     val hour = picker.timePicker.hour
                     val min = picker.timePicker.minute
-                    val repeat = Integer.parseInt(picker.textPickerRepeat.text.toString())
-                    val action = picker.textPickerDescription.text.toString()
+                    val action = picker.textPickerDetail.text.toString()
 
                     val item = AlarmModel(0, model.idApp, model.applicationLabel, model.packageName,
-                        hour, min, repeat, action, 0, MutableLiveData<Boolean>(false),
-                        arrayOf(true,true,true,true,true,true,true))
+                        hour, min, action, 0, MutableLiveData<Boolean>(false),
+                        arrayOf(true,true,true,true,true,true,true), list!!.size)
 
-                    SingletonStatic.db.alarmDao().insertAlarm(item)
+                    GlobalScope.launch {
+                        SingletonStatic.db!!.alarmDao().insertAlarm(item)
+                    }
 
                     dialog.dismiss()
                 }
@@ -137,20 +154,36 @@ class AppDetailFragment : Fragment() {
     }*/
 
     override fun onStop() {
-        list?.forEach{
-            SingletonStatic.db.alarmDao().updateAlarm(it)
+        var alwaysTrue = true
+        var atLeastOneTrue = false
+
+        if(list != null){
+            list!!.forEach{
+                SingletonStatic.db!!.alarmDao().updateAlarm(it)
+                if(it.startAlarm!!.value!! == false){
+                    alwaysTrue = false
+                } else {
+                    atLeastOneTrue = true
+                }
+            }
         }
+
+        if(atLeastOneTrue){
+            model.startAll!!.value = true
+            SingletonStatic.db!!.appDao().updateApp(model)
+        }
+        else {
+            model.startAll!!.value = false
+            SingletonStatic.db!!.appDao().updateApp(model)
+        }
+
         super.onStop()
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         activity!!.findViewById<ImageView>(R.id.toolbarBackdrop).setImageResource(0)
-        activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
+        //activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
     }
 
     override fun onDetach() {
@@ -165,6 +198,9 @@ class AppDetailFragment : Fragment() {
             val positionDragged = viewHolder.adapterPosition //position of item selected to move
             val positionTarget = target.adapterPosition //position the selected item is currently at
 
+            list[positionDragged].position = positionTarget
+            list[positionTarget].position = positionDragged
+
             Collections.swap(list, positionDragged, positionTarget)
 
             //prevent scroll if already scrolled down a bit
@@ -173,12 +209,14 @@ class AppDetailFragment : Fragment() {
             }
 
             //standard notify to update ui
-            recyclerView.adapter!!.notifyItemMoved(positionDragged, positionTarget)
+            adapter.notifyItemMoved(positionDragged, positionTarget)
             return false
         }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-            SingletonStatic.db.alarmDao().deleteAlarm(list[viewHolder.adapterPosition])
+            GlobalScope.launch {
+                SingletonStatic.db!!.alarmDao().deleteAlarm(list[viewHolder.adapterPosition])
+            }
         }
     }
 

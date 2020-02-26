@@ -4,6 +4,8 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.os.Build
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -15,8 +17,8 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.lang.Exception
-import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 
 @Entity(tableName = "Alarm",
@@ -25,25 +27,26 @@ import java.util.*
 )
 class AlarmModel(
     @PrimaryKey(autoGenerate = true) var idAlarm:Long,
-    @ColumnInfo(name = "idListAlarm") var idListAlarm:Long,
+    @ColumnInfo(name = "idListAlarm") var idListApp:Long,
     @ColumnInfo(name = "appName")var applicationLabel:String,
     @ColumnInfo(name = "appPath")var packageName:String,
     @ColumnInfo(name = "hour") var selectedHour:Int,
     @ColumnInfo(name = "minute") var selectedMinute:Int,
-    @ColumnInfo(name = "repeat") var selectedRepeat:Int,
     @ColumnInfo(name = "action") var selectedAction:String,
     @ColumnInfo(name = "fireAlarmIn") var fireAlarmIn:Long,
     @ColumnInfo(name = "startAlarm") var startAlarm:MutableLiveData<Boolean>?,
-    @ColumnInfo(name = "selectedDaysAr") var selectedDaysAr:Array<Boolean>) {
+    @ColumnInfo(name = "selectedDaysAr") var selectedDaysAr:Array<Boolean>,
+    @ColumnInfo(name = "position") var position: Int) {
 
     @Ignore var obsTextDays:MutableLiveData<String> = MutableLiveData()
     @Ignore var obsTimeLeft:MutableLiveData<String> = MutableLiveData()
 
     @Ignore private var expandVisibility:Boolean = false
 
-    @Ignore private val minuteInMs:Long = 1000L
+    @Ignore private val minuteInMs:Long = 1000
+    @Ignore private val secondInMs:Long = 1000
 
-    constructor():this(0,0,"","",1,0,0,"",0,null, arrayOf(true,true,true,true,true,true,true))
+    constructor():this(0,0,"","",1,0,"",0,null, arrayOf(true,true,true,true,true,true,true), 0)
 
     init{
         obsTextDays.postValue("Daily")
@@ -53,13 +56,11 @@ class AlarmModel(
     }
 
     //only case when called when not in lifecycle
-    fun activate(context:Context, _start:Boolean){
+    fun activate(context:Context, _start:Boolean):Boolean{
         var start = _start
 
         val calendar = Calendar.getInstance()
-        val day = calendar[Calendar.DAY_OF_WEEK]
-
-        when (day) {
+        when (calendar[Calendar.DAY_OF_WEEK]) {
             Calendar.MONDAY -> {
                 if(!selectedDaysAr[0]){
                     start = false
@@ -99,7 +100,9 @@ class AlarmModel(
 
         setAlarm(context, start)
 
-        SingletonStatic.db.alarmDao().updateAlarm(this)
+        SingletonStatic.db?.alarmDao()?.updateAlarm(this)
+
+        return start
     }
 
     private fun setAlarm(context:Context, start:Boolean){
@@ -110,23 +113,34 @@ class AlarmModel(
             startAlarm!!.value = true
             fireAlarmIn = System.currentTimeMillis() + selectedMinute * minuteInMs + selectedHour * 3600000
             intent.putExtra("time", fireAlarmIn)
-            intent.putExtra("appPath", packageName)
+            intent.putExtra("packageName", packageName)
             intent.putExtra("action", selectedAction)
-            intent.putExtra("appName", applicationLabel)
+            intent.putExtra("applicationLabel", applicationLabel)
             intent.putExtra("idAlarm", idAlarm)
-            val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            intent.putExtra("idApp", idListApp)
+            val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, idAlarm.toInt() + 100000 * idListApp.toInt(), intent, PendingIntent.FLAG_ONE_SHOT)
 
-            alarmManager.apply {
-                set(AlarmManager.RTC_WAKEUP, fireAlarmIn, alarmIntent)
-                //min sdk 23
-                setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAlarmIn, alarmIntent)
+
+            if(Build.VERSION.SDK_INT < 23 ){
+                alarmManager.apply { set(AlarmManager.RTC_WAKEUP, fireAlarmIn, alarmIntent) }
+            } else {
+                alarmManager.apply { setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, fireAlarmIn, alarmIntent) }
             }
+
+            GlobalScope.launch {
+                SingletonStatic.db?.alarmDao()?.updateAlarm(this@AlarmModel)
+            }
+
+            launchCountdown()
         } else if (start == false) {
-            val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, 0, intent, 0)
+            val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, idAlarm.toInt() + 100000 * idListApp.toInt(), intent, 0)
             alarmManager.cancel(alarmIntent)
             fireAlarmIn = 0
             startAlarm!!.value = false
+
+            obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00"
         }
+
     }
 
     fun onClickStartAlarm(view:View){
@@ -135,11 +149,8 @@ class AlarmModel(
 
         if(startAlarm!!.value!!){
             setAlarm(view.context, true)
-
-            launchCountdown()
         } else {
             setAlarm(view.context, false)
-            obsTimeLeft.value = "${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00"
         }
 
         //SingletonStatic.db.alarmDao().updateAlarm(this)
@@ -147,23 +158,21 @@ class AlarmModel(
 
     fun launchCountdown(){
         GlobalScope.launch {
-            //SingletonStatic.db.alarmDao().updateAlarm(this@AlarmModel)
-            val formatter = SimpleDateFormat("HH:mm:ss")
             var ms = fireAlarmIn - System.currentTimeMillis()
 
             while(ms > 0){
-                delay(minuteInMs)
+                delay(secondInMs)
                 ms = fireAlarmIn - System.currentTimeMillis()
 
-                obsTimeLeft.postValue(formatter.format(Calendar.getInstance().apply { timeInMillis = ms }.time))
+                val hms = String.format("%02d:%02d:%02d", TimeUnit.MILLISECONDS.toHours(ms),
+                TimeUnit.MILLISECONDS.toMinutes(ms) - TimeUnit.HOURS.toMinutes(TimeUnit.MILLISECONDS.toHours(ms)),
+                TimeUnit.MILLISECONDS.toSeconds(ms) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(ms)))
+
+                obsTimeLeft.postValue(hms)
             }
-            val b = startAlarm!!.value!!
-            startAlarm!!.postValue(!b)
+            startAlarm!!.postValue(false)
 
             obsTimeLeft.postValue("${String.format("%02d",selectedHour)}:${String.format("%02d",selectedMinute)}:00")
-            //pushNotify()
-
-            //SingletonStatic.db.alarmDao().updateAlarm(this@AlarmModel)
         }
     }
 
@@ -201,12 +210,12 @@ class AlarmModel(
         expandVisibility = !expandVisibility
 
         if(expandVisibility){
-            (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_up_accent_24dp))
+            (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_up_black_24dp))
             //Log.d("DBG: ", view.parent.toString())
             (view.parent as ConstraintLayout).listExpandDays.visibility = View.VISIBLE
         }
         else{
-            (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_down_accent_24dp))
+            (view as ImageView).setImageDrawable(ContextCompat.getDrawable(view.context, R.drawable.ic_keyboard_arrow_down_black_24dp))
             (view.parent as ConstraintLayout).listExpandDays.visibility = View.GONE
         }
     }
@@ -216,29 +225,31 @@ class AlarmModel(
         var iFalseDays = 0
         var alwaysTrue = true
 
+        val c = SingletonStatic.activity!!.applicationContext
+
         for(i in 0..6){
             if(selectedDaysAr[i]){
                 when (i) {
                     0 -> {
-                        stringDays += "Mo."
+                        stringDays += c.getString(R.string.mo)
                     }
                     1 -> {
-                        stringDays += "Tu."
+                        stringDays += c.getString(R.string.tu)
                     }
                     2 -> {
-                        stringDays += "We."
+                        stringDays += c.getString(R.string.we)
                     }
                     3 -> {
-                        stringDays += "Th."
+                        stringDays += c.getString(R.string.th)
                     }
                     4 -> {
-                        stringDays += "Fr."
+                        stringDays += c.getString(R.string.fr)
                     }
                     5 -> {
-                        stringDays += "Sa."
+                        stringDays += c.getString(R.string.sa)
                     }
                     6 -> {
-                        stringDays += "So."
+                        stringDays += c.getString(R.string.so)
                     }
                 }
             } else {
@@ -248,9 +259,9 @@ class AlarmModel(
         }
 
         val str = if(alwaysTrue)
-            "Daily"
+            c.getString(R.string.daily)
         else if(!alwaysTrue && iFalseDays == 7)
-            "Never"
+            c.getString(R.string.never)
         else
             stringDays
 
@@ -260,9 +271,5 @@ class AlarmModel(
             obsTextDays.postValue(str)
         }
 
-    }
-
-    private fun pushNotify(){
-        SingletonStatic.pushNotify(packageName, applicationLabel, selectedAction)
     }
 }

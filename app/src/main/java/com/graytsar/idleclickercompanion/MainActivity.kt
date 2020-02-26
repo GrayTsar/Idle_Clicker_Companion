@@ -1,16 +1,13 @@
 package com.graytsar.idleclickercompanion
 
-import android.app.AlarmManager
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
+import android.media.AudioAttributes
 import android.os.Build
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.SystemClock
-import android.util.Log
+import android.provider.Settings
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -22,6 +19,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import androidx.room.Room
 import com.google.android.material.navigation.NavigationView
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -48,7 +46,6 @@ class MainActivity : AppCompatActivity() {
         navView.setupWithNavController(navController)
 
         SingletonStatic.activity = this
-        SingletonStatic.channelID = "com.graytsar.idleclickercompanion.Alarm"
         SingletonStatic.notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         createNotificationChannel(SingletonStatic.channelID!!, "Alarm", "Alarm Notification")
 
@@ -68,7 +65,7 @@ class MainActivity : AppCompatActivity() {
             return
         }
 
-        val importance = NotificationManager.IMPORTANCE_LOW
+        val importance = NotificationManager.IMPORTANCE_DEFAULT
         val channel = NotificationChannel(id, name, importance)
 
         channel.description = description

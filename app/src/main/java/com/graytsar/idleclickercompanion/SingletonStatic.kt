@@ -1,19 +1,13 @@
 package com.graytsar.idleclickercompanion
 
+import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.graphics.Bitmap
-import android.util.Log
-import android.widget.ImageView
+import android.media.RingtoneManager
+import android.provider.Settings
 import androidx.core.app.NotificationCompat
-import androidx.core.view.forEach
-import androidx.databinding.BindingAdapter
 import androidx.databinding.BindingMethod
 import androidx.databinding.BindingMethods
-import androidx.room.TypeConverter
-import com.google.gson.Gson
-import kotlinx.android.synthetic.main.fragment_home.*
-
 
 @BindingMethods(value = [
     BindingMethod(
@@ -25,22 +19,23 @@ import kotlinx.android.synthetic.main.fragment_home.*
 object SingletonStatic {
     var activity:MainActivity? = null
     var notificationManager:NotificationManager? = null
-    var channelID:String? = null
-    val notificationID:Int = 101
+    var channelID:String = "com.graytsar.idleclickercompanion.Alarm"
+    private const val notificationID:Int = 101
 
-    lateinit var db:PersistentRoomDatabase
+    var db:PersistentRoomDatabase? = null
 
     fun pushNotify(appPath:String, title:String, text:String){
         val launchIntent = activity!!.packageManager.getLaunchIntentForPackage(appPath)
-        val pendingIntent:PendingIntent = PendingIntent.getActivity(activity, 0, launchIntent, PendingIntent.FLAG_UPDATE_CURRENT)
+        val pendingIntent:PendingIntent = PendingIntent.getActivity(activity, 0, launchIntent, PendingIntent.FLAG_CANCEL_CURRENT)
 
-        val notification = NotificationCompat.Builder(activity!!, channelID!!)
-            .setContentTitle(title)
-            .setContentText(text)
-            .setSmallIcon(R.drawable.ic_keyboard_arrow_down_black_24dp)
-            .setChannelId(channelID!!)
-            .setContentIntent(pendingIntent)
-            .build()
+        val notification = NotificationCompat.Builder(activity!!, channelID).apply {
+            setContentTitle(title)
+            setContentText(text)
+            setSmallIcon(R.drawable.ic_notifications_active_black_24dp)
+            setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+            setContentIntent(pendingIntent)
+            setChannelId(channelID)
+        }.build()
 
         notificationManager!!.notify(notificationID, notification)
     }

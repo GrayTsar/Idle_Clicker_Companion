@@ -4,12 +4,18 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
-    <group android:checkableBehavior="single">
-        <item
-            android:id="@+id/nav_home"
-            android:title="Home" />
-        <item
-            android:id="@+id/nav_select_game"
-            android:title="Select Game" />
-    </group>
+    <item android:title="@string/menu">
+        <menu>
+            <group android:checkableBehavior="single">
+                <item
+                    android:id="@+id/nav_home"
+                    android:icon="@drawable/ic_home_black_24dp"
+                    android:title="@string/home" />
+                <item
+                    android:id="@+id/nav_select_game"
+                    android:icon="@drawable/ic_add_circle_outline_black_24dp"
+                    android:title="@string/add_game" />
+            </group>
+        </menu>
+    </item>
 </menu>

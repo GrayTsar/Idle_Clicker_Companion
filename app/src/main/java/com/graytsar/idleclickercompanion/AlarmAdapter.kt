@@ -4,31 +4,38 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.graytsar.idleclickercompanion.databinding.ItemGameAlertBinding
-import kotlinx.android.synthetic.main.item_game_alert.view.*
 
-class AppAlarmAdapter(val activity: AppDetailFragment, val list:List<AlarmModel>): RecyclerView.Adapter<ViewHolderAppAlarm>() {
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAppAlarm {
+class AppAlarmAdapter(private val activity: AppDetailFragment): ListAdapter<AlarmModel, ViewHolderAlarm>(AlarmModelDiffCallback()) {
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolderAlarm {
         val binding = DataBindingUtil.inflate<ItemGameAlertBinding>(LayoutInflater.from(activity.context), R.layout.item_game_alert, parent, false)
-        return ViewHolderAppAlarm(binding.root, binding)
+        return ViewHolderAlarm(binding.root, binding)
     }
 
-    override fun getItemCount(): Int {
-        return list.count()
-    }
-
-    override fun onBindViewHolder(holder: ViewHolderAppAlarm, position: Int) {
+    override fun onBindViewHolder(holder: ViewHolderAlarm, position: Int) {
         holder.binding.lifecycleOwner = activity
-        holder.binding.alarmModel = list[position]
+        holder.binding.alarmModel = getItem(position)
 
-        if(list[position].startAlarm!!.value!!){
-            list[position].launchCountdown()
+        if(getItem(position).startAlarm!!.value!!){
+            getItem(position).launchCountdown()
         }
-
     }
 }
 
-class ViewHolderAppAlarm(view: View, val binding: ItemGameAlertBinding):RecyclerView.ViewHolder(view){
+class ViewHolderAlarm(view: View, val binding: ItemGameAlertBinding): RecyclerView.ViewHolder(view){
 
+}
+
+class AlarmModelDiffCallback:DiffUtil.ItemCallback<AlarmModel>(){
+    override fun areItemsTheSame(oldItem: AlarmModel, newItem: AlarmModel): Boolean {
+        return oldItem.idAlarm == newItem.idAlarm
+    }
+
+    override fun areContentsTheSame(oldItem: AlarmModel, newItem: AlarmModel): Boolean {
+        return (oldItem.selectedAction == newItem.selectedAction) && (oldItem.selectedHour == newItem.selectedHour) && (oldItem.selectedMinute == newItem.selectedMinute)
+    }
 }

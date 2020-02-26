@@ -14,7 +14,7 @@
         android:id="@+id/appDetailFragment"
         android:name="com.graytsar.idleclickercompanion.AppDetailFragment"
         android:label="fragment_app_detail"
-        tools:layout="@layout/fragment_app_detail" >
+        tools:layout="@layout/fragment_detail" >
         <argument
             android:name="obj"
             app:argType="string"

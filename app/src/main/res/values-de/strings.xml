@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Idle Clicker Companion</string>
+    <string name="app_name">Idle Clicker Begleiter</string>
 
     <string name="menu">Menü</string>
     <string name="home">Home</string>
@@ -10,7 +10,7 @@
     <string name="mo">Mo.</string>
     <string name="tu">Di.</string>
     <string name="we">Mi.</string>
-    <string name="th">Dp.</string>
+    <string name="th">Do.</string>
     <string name="fr">Fr.</string>
     <string name="sa">Sa.</string>
     <string name="so">So.</string>
@@ -20,4 +20,5 @@
     <string name="daily">Täglich</string>
     <string name="never">Niemals</string>
     <string name="noAlarmsStartable">Kein Alarm startbar</string>
+    <string name="ok">OK</string>
 </resources>

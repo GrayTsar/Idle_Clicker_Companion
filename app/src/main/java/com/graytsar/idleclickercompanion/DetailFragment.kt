@@ -3,6 +3,7 @@ package com.graytsar.idleclickercompanion
 import android.app.AlertDialog
 import android.graphics.Color
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -67,7 +68,7 @@ class AppDetailFragment : Fragment() {
         view.recyclerAppDetail.adapter = adapter
 
         val array = SingletonStatic.db!!.alarmDao().getAllAlarm(model.idApp)
-        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
+        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {it ->
             list = null
             list = it.sortedBy { alarmModel ->
                 alarmModel.position
@@ -108,8 +109,15 @@ class AppDetailFragment : Fragment() {
             val builder = AlertDialog.Builder(context)
             val picker = inflater.inflate(R.layout.picker_alarm, null)
             picker.timePicker.setIs24HourView(true)
-            picker.timePicker.hour = 1
-            picker.timePicker.minute = 0
+
+            if(Build.VERSION.SDK_INT < 23){
+                picker.timePicker.currentHour = 1
+                picker.timePicker.currentMinute = 0
+            } else {
+                picker.timePicker.hour = 1
+                picker.timePicker.minute = 0
+            }
+
 
             builder.setView(picker)
             builder.create()
@@ -120,8 +128,17 @@ class AppDetailFragment : Fragment() {
                 if(picker.textPickerDetail.text.isEmpty()){
                     picker.textPickerDetail.error = getString(R.string.textPickerErrorHint)
                 } else {
-                    val hour = picker.timePicker.hour
-                    val min = picker.timePicker.minute
+                    var hour = 1
+                    var min = 0
+
+                    if(Build.VERSION.SDK_INT < 23){
+                        hour = picker.timePicker.currentHour
+                        min = picker.timePicker.currentMinute
+                    } else {
+                        hour = picker.timePicker.hour
+                        min = picker.timePicker.minute
+                    }
+
                     val action = picker.textPickerDetail.text.toString()
 
                     val item = AlarmModel(0, model.idApp, model.applicationLabel, model.packageName,

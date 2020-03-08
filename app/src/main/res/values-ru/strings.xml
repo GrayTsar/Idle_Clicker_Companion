@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Idle Clicker Companion</string>
+
+    <string name="menu">меню</string>
+    <string name="home">Home</string>
+    <string name="add_game">игра добавить</string>
+    <string name="add_an_alarm">Добавить будильник!</string>
+    <string name="open_menu_and_add_a_game">меню открыть и игру добавить!</string>
+    <string name="mo">по.</string>
+    <string name="tu">вт.</string>
+    <string name="we">ср.</string>
+    <string name="th">че.</string>
+    <string name="fr">пя.</string>
+    <string name="sa">су.</string>
+    <string name="so">во.</string>
+    <string name="descriptionAlarm">например</string>
+    <string name="descriptionAppSelect">например</string>
+    <string name="textPickerErrorHint">Заполнять все строчки</string>
+    <string name="daily">ежедневно</string>
+    <string name="never">никогда</string>
+    <string name="noAlarmsStartable">Невозможно активировать</string>
+    <string name="ok">OK</string>
+</resources>

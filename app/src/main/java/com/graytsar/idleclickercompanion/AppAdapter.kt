@@ -18,7 +18,12 @@ class AppCardAdapter (private val activity: HomeFragment): ListAdapter<AppModel,
     }
 
     override fun onBindViewHolder(holder: ViewHolderApp, position: Int) {
-        getItem(position).icon = activity.context!!.packageManager.getApplicationIcon(getItem(position).packageName).toBitmap()
+        try{
+            getItem(position).icon = activity.context!!.packageManager.getApplicationIcon(getItem(position).packageName).toBitmap()
+        } catch (e: Exception) {
+            SingletonStatic.db!!.appDao().deleteApp(getItem(position))
+        }
+
 
         holder.binding.lifecycleOwner = activity
         holder.binding.appCardModel = getItem(position)

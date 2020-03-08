@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -43,7 +42,7 @@ class AlarmModel(
 
     @Ignore private var expandVisibility:Boolean = false
 
-    @Ignore private val minuteInMs:Long = 1000
+    @Ignore private val minuteInMs:Long = 60000
     @Ignore private val secondInMs:Long = 1000
 
     constructor():this(0,0,"","",1,0,"",0,null, arrayOf(true,true,true,true,true,true,true), 0)

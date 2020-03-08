@@ -1,10 +1,8 @@
 package com.graytsar.idleclickercompanion
 
-import android.app.Notification
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.media.RingtoneManager
-import android.provider.Settings
 import androidx.core.app.NotificationCompat
 import androidx.databinding.BindingMethod
 import androidx.databinding.BindingMethods

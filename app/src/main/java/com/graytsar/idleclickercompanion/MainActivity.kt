@@ -3,10 +3,8 @@ package com.graytsar.idleclickercompanion
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
-import android.media.AudioAttributes
 import android.os.Build
 import android.os.Bundle
-import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
@@ -28,6 +26,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
@@ -47,7 +46,7 @@ class MainActivity : AppCompatActivity() {
 
         SingletonStatic.activity = this
         SingletonStatic.notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        createNotificationChannel(SingletonStatic.channelID!!, "Alarm", "Alarm Notification")
+        createNotificationChannel(SingletonStatic.channelID, "Alarm", "Alarm Notification")
 
         SingletonStatic.db = Room.databaseBuilder(
             applicationContext,

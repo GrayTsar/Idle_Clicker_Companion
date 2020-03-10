@@ -94,10 +94,6 @@ class AppDetailFragment : Fragment() {
 
         activity!!.toolbarBackdrop.setImageBitmap(model.icon)
         activity!!.collapsingToolbarLayout.apply {
-            //setBackgroundColor(ContextCompat.getColor(context, R.color.colorComplementaryGreen))
-            //setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
-            setCollapsedTitleTextColor(Color.WHITE)
-            setExpandedTitleColor(Color.WHITE)
             title = model.userName!!.value
         }
         //activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorComplementaryGreen)

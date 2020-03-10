@@ -14,10 +14,12 @@
         >
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_scrollFlags="scroll|exitUntilCollapsed"
-            android:id="@+id/collapsingToolbarLayout"
+            app:expandedTitleTextAppearance="@style/collapsingToolbarLayoutTitleColor"
+            app:collapsedTitleTextAppearance="@style/collapsingToolbarLayoutTitleColor"
             >
 
             <androidx.constraintlayout.widget.ConstraintLayout

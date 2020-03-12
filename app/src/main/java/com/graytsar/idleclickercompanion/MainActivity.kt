@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.app.AppCompatDelegate
 import androidx.appcompat.widget.Toolbar
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
@@ -18,6 +19,8 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.room.Room
 import com.google.android.material.navigation.NavigationView
 
+const val keyPreferenceTheme="preferenceTheme"
+const val keyTheme="theme"
 
 class MainActivity : AppCompatActivity() {
 
@@ -52,6 +55,11 @@ class MainActivity : AppCompatActivity() {
             applicationContext,
             PersistentRoomDatabase::class.java, "AppCard_Database"
         ).allowMainThreadQueries().build()
+
+        val sharedPref = this.getSharedPreferences(keyPreferenceTheme, Context.MODE_PRIVATE)
+        if(sharedPref.getBoolean(keyTheme, false)){
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+        }
     }
 
     override fun onSupportNavigateUp(): Boolean {

@@ -21,4 +21,7 @@
     <string name="never">никогда</string>
     <string name="noAlarmsStartable">Невозможно активировать</string>
     <string name="ok">OK</string>
+
+    <string name="lightTheme">легкая тема</string>
+    <string name="darkTheme">темная тема</string>
 </resources>

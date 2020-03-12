@@ -108,7 +108,7 @@ class AlarmModel(
         val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(context, AlarmReceiver::class.java)
 
-        if(start == true){
+        if(start){
             startAlarm!!.value = true
             fireAlarmIn = System.currentTimeMillis() + selectedMinute * minuteInMs + selectedHour * 3600000
             intent.putExtra("time", fireAlarmIn)
@@ -131,7 +131,7 @@ class AlarmModel(
             }
 
             launchCountdown()
-        } else if (start == false) {
+        } else if (!start) {
             val alarmIntent:PendingIntent = PendingIntent.getBroadcast(context, idAlarm.toInt() + 100000 * idListApp.toInt(), intent, 0)
             alarmManager.cancel(alarmIntent)
             fireAlarmIn = 0

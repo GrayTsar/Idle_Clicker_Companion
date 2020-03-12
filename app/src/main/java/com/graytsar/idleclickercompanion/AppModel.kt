@@ -1,6 +1,6 @@
 package com.graytsar.idleclickercompanion
 
-import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.View
 import androidx.lifecycle.MutableLiveData
@@ -18,7 +18,7 @@ class AppModel constructor(
     @PrimaryKey(autoGenerate = true) var idApp:Long,
     @ColumnInfo(name = "appName") var applicationLabel: String,
     @ColumnInfo(name = "userName") var userName: MutableLiveData<String>?,
-    @Ignore var icon: Bitmap?,
+    @Ignore var icon: Drawable?,
     @ColumnInfo(name = "appPath") var packageName: String,
     @ColumnInfo(name = "startAll") var startAll: MutableLiveData<Boolean>?,
     @ColumnInfo(name = "position") var position: Int) {
@@ -45,7 +45,7 @@ class AppModel constructor(
         var alwaysTrue = true
         var atLeastOneTrue = false
         array.forEach {
-            if (it.activate(view.context, startAll!!.value!!) == false) {
+            if (!it.activate(view.context, startAll!!.value!!)) {
                 alwaysTrue = false
             } else {
                 atLeastOneTrue = true

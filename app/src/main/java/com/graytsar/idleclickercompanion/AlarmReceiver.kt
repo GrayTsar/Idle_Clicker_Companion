@@ -37,7 +37,7 @@ class AlarmReceiver: BroadcastReceiver() {
         var alwaysTrue = true
         var atLeastOneTrue = false
         array.forEach {
-            if(it.startAlarm!!.value!! == false){
+            if(!it.startAlarm!!.value!!){
                 alwaysTrue = false
             } else {
                 atLeastOneTrue = true

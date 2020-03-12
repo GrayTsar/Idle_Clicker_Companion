@@ -5,7 +5,6 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.ImageView
-import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.BindingMethod
 import androidx.databinding.BindingMethods
 import androidx.lifecycle.lifecycleScope
@@ -19,7 +18,7 @@ import kotlinx.coroutines.launch
     BindingMethod(
         type = ImageView::class,
         attribute = "app:srcCompat",
-        method = "setImageBitmap" )])
+        method = "setImageDrawable" )])
 
 class AppSelectActivity : AppCompatActivity() {
 
@@ -51,7 +50,7 @@ class AppSelectActivity : AppCompatActivity() {
                     val appSelectModel = AppSelectModel(
                         this@AppSelectActivity,
                         packageManager.getApplicationLabel(packageManager.getApplicationInfo(applicationInfo.packageName, 0)).toString(),
-                        packageManager.getApplicationIcon(packageManager.getApplicationInfo(applicationInfo.packageName, 0)).toBitmap(),
+                        packageManager.getApplicationIcon(packageManager.getApplicationInfo(applicationInfo.packageName, 0)),
                         applicationInfo.packageName
                     )
 

@@ -23,4 +23,11 @@
         <item name="color">@color/colorHamburgerIcon</item>
     </style>
 
+    <style name="picker_editText_style" parent="Widget.AppCompat.EditText">
+        <item name="android:gravity">center</item>
+        <item name="android:inputType">text</item>
+        <item name="android:maxLines">1</item>
+    </style>
+
+
 </resources>

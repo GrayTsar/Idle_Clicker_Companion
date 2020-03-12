@@ -21,4 +21,7 @@
     <string name="never">Niemals</string>
     <string name="noAlarmsStartable">Kein Alarm startbar</string>
     <string name="ok">OK</string>
+
+    <string name="lightTheme">Helles Theme</string>
+    <string name="darkTheme">Dunkles Theme</string>
 </resources>

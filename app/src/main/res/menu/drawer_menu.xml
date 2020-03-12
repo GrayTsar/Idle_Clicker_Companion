@@ -18,4 +18,10 @@
             </group>
         </menu>
     </item>
+    <item
+        android:id="@+id/lightTheme"
+        android:title="@string/lightTheme" />
+    <item
+        android:id="@+id/darkTheme"
+        android:title="@string/darkTheme" />
 </menu>

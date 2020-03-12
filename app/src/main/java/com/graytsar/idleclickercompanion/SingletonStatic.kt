@@ -11,7 +11,7 @@ import androidx.databinding.BindingMethods
     BindingMethod(
         type = androidx.constraintlayout.utils.widget.ImageFilterView::class,
         attribute = "app:srcCompat",
-        method = "setImageBitmap" )])
+        method = "setImageDrawable" )])
 
 //toDo: remove Singleton Class
 object SingletonStatic {

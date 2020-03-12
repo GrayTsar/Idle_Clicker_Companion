@@ -3,7 +3,6 @@ package com.graytsar.idleclickercompanion
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.graphics.drawable.toBitmap
 import androidx.databinding.DataBindingUtil
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
@@ -19,7 +18,7 @@ class AppCardAdapter (private val activity: HomeFragment): ListAdapter<AppModel,
 
     override fun onBindViewHolder(holder: ViewHolderApp, position: Int) {
         try{
-            getItem(position).icon = activity.context!!.packageManager.getApplicationIcon(getItem(position).packageName).toBitmap()
+            getItem(position).icon = activity.context!!.packageManager.getApplicationIcon(getItem(position).packageName)
         } catch (e: Exception) {
             SingletonStatic.db!!.appDao().deleteApp(getItem(position))
         }

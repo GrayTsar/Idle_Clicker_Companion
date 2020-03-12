@@ -2,27 +2,22 @@ package com.graytsar.idleclickercompanion
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Bitmap
-import android.text.InputType
+import android.graphics.drawable.Drawable
 import android.view.View
-import android.widget.EditText
 import androidx.appcompat.app.AlertDialog
 import kotlinx.android.synthetic.main.picker_app_select.view.*
 
-class AppSelectModel(private val activity: Activity, val applicationLabel:String, val applicationIcon: Bitmap, val packageName:String) {
+class AppSelectModel(private val activity: Activity, val applicationLabel:String, val applicationIcon: Drawable, val packageName:String) {
 
     fun onClickAppSelect(view:View){
         val result = Intent()
-        val editText = EditText(activity).apply{
-            maxLines = 1
-            inputType = InputType.TYPE_CLASS_TEXT
-        }
+
         val builder = AlertDialog.Builder(activity)
         val picker = activity.layoutInflater.inflate(R.layout.picker_app_select, null)
 
         builder.setView(picker)
         builder.create()
-        val dialog = builder.show()
+        builder.show()
 
         picker.dialogButtonAppSelect.setOnClickListener {
             if(picker.textPickerAppSelect.text.isEmpty()){

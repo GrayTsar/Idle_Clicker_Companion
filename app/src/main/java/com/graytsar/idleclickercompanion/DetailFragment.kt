@@ -56,7 +56,7 @@ class AppDetailFragment : Fragment() {
         }
 
         model = SingletonStatic.db!!.appDao().findApp(arguments?.getLong("key")!!)[0]
-        model.icon = context!!.packageManager.getApplicationIcon(model.packageName).toBitmap()
+        model.icon = context!!.packageManager.getApplicationIcon(model.packageName)
     }
 
     override fun onCreateView(
@@ -68,7 +68,7 @@ class AppDetailFragment : Fragment() {
         view.recyclerAppDetail.adapter = adapter
 
         val array = SingletonStatic.db!!.alarmDao().getAllAlarm(model.idApp)
-        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {it ->
+        array.observe(viewLifecycleOwner, androidx.lifecycle.Observer {
             list = null
             list = it.sortedBy { alarmModel ->
                 alarmModel.position
@@ -92,7 +92,7 @@ class AppDetailFragment : Fragment() {
             helper!!.attachToRecyclerView(view.recyclerAppDetail)
         })
 
-        activity!!.toolbarBackdrop.setImageBitmap(model.icon)
+        activity!!.toolbarBackdrop.setImageDrawable(model.icon)
         activity!!.collapsingToolbarLayout.apply {
             title = model.userName!!.value
         }
@@ -173,7 +173,7 @@ class AppDetailFragment : Fragment() {
         if(list != null){
             list!!.forEach{
                 SingletonStatic.db!!.alarmDao().updateAlarm(it)
-                if(it.startAlarm!!.value!! == false){
+                if(!it.startAlarm!!.value!!){
                     alwaysTrue = false
                 } else {
                     atLeastOneTrue = true

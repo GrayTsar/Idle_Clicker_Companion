@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Idle Clicker Companion</string>
+
+    <string name="menu">menu</string>
+    <string name="home">home</string>
+    <string name="add_game">ajouter un jeu</string>
+    <string name="add_an_alarm">ajoutez une alarme!</string>
+    <string name="open_menu_and_add_a_game">ouvrez le menu et ajoutez le jeu!</string>
+    <string name="mo">lun.</string>
+    <string name="tu">mar.</string>
+    <string name="we">mer.</string>
+    <string name="th">jeu.</string>
+    <string name="fr">ven.</string>
+    <string name="sa">sam.</string>
+    <string name="so">dim.</string>
+    <string name="descriptionAlarm">la description</string>
+    <string name="descriptionAppSelect">la description</string>
+    <string name="textPickerErrorHint">l entrée ne doit pas être vide</string>
+    <string name="daily">chaque jour</string>
+    <string name="never">jamais</string>
+    <string name="noAlarmsStartable">aucune alarme ne peut être déclenchée</string>
+    <string name="ok">OK</string>
+
+    <string name="lightTheme">Light Theme</string>
+    <string name="darkTheme">Dark Theme</string>
+</resources>

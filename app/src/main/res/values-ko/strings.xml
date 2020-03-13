@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Idle Clicker Companion</string>
+
+    <string name="menu">메뉴</string>
+    <string name="home">홈</string>
+    <string name="add_game">게임 추가</string>
+    <string name="add_an_alarm">자명종 추가</string>
+    <string name="open_menu_and_add_a_game">메뉴 열기 및 게임 추가</string>
+    <string name="mo">월요일</string>
+    <string name="tu">화요일</string>
+    <string name="we">수요일</string>
+    <string name="th">목요일</string>
+    <string name="fr">금요일</string>
+    <string name="sa">토요일</string>
+    <string name="so">일요일</string>
+    <string name="descriptionAlarm">묘사</string>
+    <string name="descriptionAppSelect">묘사</string>
+    <string name="textPickerErrorHint">묘사는 비워 둘 수 없습니다</string>
+    <string name="daily">매일</string>
+    <string name="never">절대</string>
+    <string name="noAlarmsStartable">시작할 자명종이 없습니다</string>
+    <string name="ok">확인</string>
+
+    <string name="lightTheme">라이트 테마</string>
+    <string name="darkTheme">다크 테마</string>
+</resources>

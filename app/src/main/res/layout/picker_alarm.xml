@@ -14,7 +14,9 @@
         android:layout_marginEnd="8dp"
         android:ems="10"
         android:hint="@string/descriptionAlarm"
-        android:theme="@style/picker_editText_style"
+        android:gravity="center"
+        android:inputType="text"
+        android:maxLines="1"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />

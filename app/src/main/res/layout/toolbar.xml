@@ -64,7 +64,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         app:backgroundTint="@color/colorAccent"
-        android:src="@drawable/ic_add_white_24dp"
+        app:srcCompat="@drawable/ic_add_white_24dp"
         app:borderWidth="0dp"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end" />

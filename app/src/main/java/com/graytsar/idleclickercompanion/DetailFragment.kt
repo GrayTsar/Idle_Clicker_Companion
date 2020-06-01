@@ -54,7 +54,7 @@ class AppDetailFragment : Fragment() {
         }
 
         model = SingletonStatic.db!!.appDao().findApp(arguments?.getLong("key")!!)[0]
-        model.icon = context!!.packageManager.getApplicationIcon(model.packageName)
+        model.icon = requireContext().packageManager.getApplicationIcon(model.packageName)
     }
 
     override fun onCreateView(
@@ -90,8 +90,8 @@ class AppDetailFragment : Fragment() {
             helper!!.attachToRecyclerView(view.recyclerAppDetail)
         })
 
-        activity!!.toolbarBackdrop.setImageDrawable(model.icon)
-        activity!!.collapsingToolbarLayout.apply {
+        requireActivity().toolbarBackdrop.setImageDrawable(model.icon)
+        requireActivity().collapsingToolbarLayout.apply {
             title = model.userName!!.value
         }
         //activity!!.window.statusBarColor = ContextCompat.getColor(context!!, R.color.colorComplementaryGreen)
@@ -99,7 +99,7 @@ class AppDetailFragment : Fragment() {
         //view.recyclerAppDetail.addItemDecoration(DividerItemDecoration(view.recyclerAppDetail.context, linearLayoutManager.orientation))
 
         //gc does clean up
-        activity!!.fab.setOnClickListener {
+        requireActivity().fab.setOnClickListener {
             val builder = AlertDialog.Builder(context)
             val picker = inflater.inflate(R.layout.picker_alarm, null)
             picker.timePicker.setIs24HourView(true)
@@ -193,7 +193,7 @@ class AppDetailFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        activity!!.findViewById<ImageView>(R.id.toolbarBackdrop).setImageResource(0)
+        requireActivity().findViewById<ImageView>(R.id.toolbarBackdrop).setImageResource(0)
         //activity!!.findViewById<CollapsingToolbarLayout>(R.id.collapsingToolbarLayout).setBackgroundColor(ContextCompat.getColor(context!!, R.color.colorPrimary))
     }
 

@@ -60,7 +60,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val navigationView:NavigationView = activity!!.findViewById(R.id.nav_view)
+        val navigationView:NavigationView = requireActivity().findViewById(R.id.nav_view)
         navigationView.setNavigationItemSelectedListener(this)
 
         val view = inflater.inflate(R.layout.fragment_home, container, false)
@@ -99,7 +99,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             helper!!.attachToRecyclerView(view.recyclerHome)
         })
 
-        activity!!.drawer_layout.closeDrawers()
+        requireActivity().drawer_layout.closeDrawers()
 
         // Inflate the layout for this fragment
         return view
@@ -134,7 +134,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
 
     override  fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        activity!!.drawer_layout.closeDrawers()
+        requireActivity().drawer_layout.closeDrawers()
 
         if(data != null && resultCode == 1){
             val packageName = data.extras!!["packageName"] as String
@@ -144,7 +144,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
             val model = AppModel(0,
                 applicationLabel,
                 MutableLiveData<String>(userName),
-                activity!!.packageManager.getApplicationIcon(packageName),
+                requireActivity().packageManager.getApplicationIcon(packageName),
                 packageName,
                 MutableLiveData<Boolean>(false),
                 list!!.size)
@@ -218,7 +218,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
     }
 
     override fun onNavigationItemSelected(p0: MenuItem): Boolean {
-        val f = activity!!.supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
+        val f = requireActivity().supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         val navController:NavController = f.navController //for fragment switch
 
         when(p0.itemId){
@@ -227,7 +227,7 @@ class HomeFragment : Fragment(), NavigationView.OnNavigationItemSelectedListener
                 navController.navigate(R.id.homeFragment)
             }
             R.id.nav_select_game -> {
-                activity!!.drawer_layout.closeDrawers()
+                requireActivity().drawer_layout.closeDrawers()
 
                 val intent = Intent(this.context, AppSelectActivity::class.java)
                 startActivityForResult(intent, 1)
